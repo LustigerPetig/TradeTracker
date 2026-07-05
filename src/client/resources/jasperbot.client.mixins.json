@@ -3,8 +3,12 @@
 	"package": "jasper.bot.client.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
+		"EntityGlowMixin",
+		"GlBackendMixin",
+		"InteractionMixin",
+		"MerchantScreenMixin",
 		"TitleScreenMixin",
-		"GlBackendMixin"
+		"MultiPlayerGameModeMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
