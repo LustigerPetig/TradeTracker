@@ -3,13 +3,13 @@
 	"id": "jasperbot",
 	"version": "${version}",
 	"name": "JasperBot",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Diese Mod wurde als Antwort auf Jaspers schwere Cheating-Abhängigkeit entwickelt.",
 	"authors": [
-		"Me!"
+		"John Minecraft"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"sources": "https://github.com/LustigerPetig/JasperBot"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/jasperbot/icon.png",
@@ -26,6 +26,9 @@
 				"value": "jasper.bot.client.JasperBotClient",
 				"adapter": "kotlin"
 			}
+		],
+		"modmenu": [
+			"jasper.bot.client.JasperBotModMenu"
 		],
 		"fabric-datagen": [
 			{
