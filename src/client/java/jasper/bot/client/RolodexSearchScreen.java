@@ -15,11 +15,15 @@ import java.util.List;
 import java.util.UUID;
 
 public class RolodexSearchScreen extends Screen {
+
     private EditBox searchBox;
     private final List<Button> tradeButtons = new ArrayList<>();
     private int scrollOffset = 0;
     private Button nextButton;
     private Button prevButton;
+
+    // NEW: This is now a dynamic variable, calculated every time the screen opens or resizes!
+    private int tradesPerPage = 5;
 
     private final List<VillagerRolodex.TradeInfo> filteredTrades = new ArrayList<>();
 
@@ -31,7 +35,19 @@ public class RolodexSearchScreen extends Screen {
     protected void init() {
         super.init();
 
-        this.searchBox = new EditBox(this.font, this.width / 2 - 100, 20, 200, 20, Component.literal("Search Trades"));
+        // CRITICAL: Clear the old buttons in case the player resizes the window while the menu is open
+        this.tradeButtons.clear();
+
+        // --- THE RESPONSIVE MATH ---
+        // Top margin (Search bar) takes up ~45 pixels.
+        // Bottom margin (Pagination) takes up ~40 pixels.
+        // Total usable space = height - 85.
+        // Each button is 24px tall + 2px gap = 26px step.
+        int usableHeight = this.height - 85;
+        this.tradesPerPage = Math.max(1, usableHeight / 26); // Ensure it always fits at least 1!
+        // ---------------------------
+
+        this.searchBox = new EditBox(this.font, this.width / 2 - 100, 15, 200, 20, Component.literal("Search Trades"));
         this.searchBox.setMaxLength(50);
         this.searchBox.setValue(VillagerRolodex.searchQuery);
         this.searchBox.setResponder(text -> {
@@ -51,7 +67,7 @@ public class RolodexSearchScreen extends Screen {
         }).bounds(this.width / 2 - 175, this.height - 30, 20, 20).build();
 
         this.nextButton = Button.builder(Component.literal(">"), btn -> {
-            if ((this.scrollOffset + 1) * 5 < this.filteredTrades.size()) {
+            if ((this.scrollOffset + 1) * this.tradesPerPage < this.filteredTrades.size()) {
                 this.scrollOffset++;
                 refreshList();
             }
@@ -60,11 +76,11 @@ public class RolodexSearchScreen extends Screen {
         this.addRenderableWidget(this.prevButton);
         this.addRenderableWidget(this.nextButton);
 
-        for (int i = 0; i < 5; i++) {
+        // Generate exactly as many buttons as the screen can hold
+        for (int i = 0; i < this.tradesPerPage; i++) {
             int index = i;
-            // Blank button! We will draw over it later.
             Button btn = Button.builder(Component.empty(), b -> {
-                        int actualIndex = (this.scrollOffset * 5) + index;
+                        int actualIndex = (this.scrollOffset * this.tradesPerPage) + index;
                         if (actualIndex < this.filteredTrades.size()) {
                             UUID target = this.filteredTrades.get(actualIndex).villagerId;
                             VillagerRolodex.targetedVillager = target;
@@ -72,8 +88,7 @@ public class RolodexSearchScreen extends Screen {
                             this.onClose();
                         }
                     })
-                    // Taller buttons (24px) so 16x16 items fit beautifully
-                    .bounds(this.width / 2 - 150, 60 + (i * 28), 300, 24).build();
+                    .bounds(this.width / 2 - 150, 45 + (i * 26), 300, 24).build();
 
             this.tradeButtons.add(btn);
             this.addRenderableWidget(btn);
@@ -94,8 +109,8 @@ public class RolodexSearchScreen extends Screen {
             }
         }
 
-        for (int i = 0; i < 5; i++) {
-            int actualIndex = (this.scrollOffset * 5) + i;
+        for (int i = 0; i < this.tradesPerPage; i++) {
+            int actualIndex = (this.scrollOffset * this.tradesPerPage) + i;
             Button btn = this.tradeButtons.get(i);
 
             if (actualIndex < this.filteredTrades.size()) {
@@ -108,17 +123,15 @@ public class RolodexSearchScreen extends Screen {
         }
 
         this.prevButton.active = this.scrollOffset > 0;
-        this.nextButton.active = (this.scrollOffset + 1) * 5 < this.filteredTrades.size();
+        this.nextButton.active = (this.scrollOffset + 1) * this.tradesPerPage < this.filteredTrades.size();
     }
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        // 1. Let the EditBox handle typing first
         if (this.searchBox.keyPressed(event)) {
-
             return true;
-
         }
+
         int keyCode = event.key();
         if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
             VillagerRolodex.targetedVillager = null;
@@ -129,34 +142,28 @@ public class RolodexSearchScreen extends Screen {
         return super.keyPressed(event);
     }
 
-    // THE MAGIC HAPPENS HERE
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         super.extractRenderState(graphics, mouseX, mouseY, delta);
 
-        // 1. Draw Page text
         String pageText = "Page " + (this.scrollOffset + 1);
         if (this.filteredTrades.isEmpty()) pageText = "No cached trades found!";
         graphics.text(this.font, pageText, this.width / 2 - this.font.width(pageText) / 2, this.height - 25, ARGB.white(1.0F));
 
-        // 2. Custom Item Rendering over the blank buttons!
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < this.tradesPerPage; i++) {
             Button btn = this.tradeButtons.get(i);
             if (btn.visible) {
-                int actualIndex = (this.scrollOffset * 5) + i;
+                int actualIndex = (this.scrollOffset * this.tradesPerPage) + i;
                 if (actualIndex < this.filteredTrades.size()) {
                     VillagerRolodex.TradeInfo trade = this.filteredTrades.get(actualIndex);
 
-                    // Start drawing inside the button bounds
                     int drawX = btn.getX() + 10;
-                    int drawY = btn.getY() + 4; // Padding to center the 16x16 item vertically
+                    int drawY = btn.getY() + 4;
 
-                    // Cost A (e.g. Emeralds)
                     graphics.item(trade.costA, drawX, drawY);
                     graphics.itemDecorations(this.font, trade.costA, drawX, drawY);
                     drawX += 22;
 
-                    // Cost B (e.g. Book)
                     if (!trade.costB.isEmpty()) {
                         graphics.text(this.font, "+", drawX, drawY + 4, 0xFFAAAAAA);
                         drawX += 12;
@@ -165,17 +172,14 @@ public class RolodexSearchScreen extends Screen {
                         drawX += 22;
                     }
 
-                    // Arrow
                     graphics.text(this.font, "->", drawX, drawY + 4, ARGB.white(1.0F));
                     drawX += 18;
 
-                    // Result (e.g. Enchanted Book)
                     graphics.item(trade.result, drawX, drawY);
                     graphics.itemDecorations(this.font, trade.result, drawX, drawY);
                     drawX += 22;
 
-                    // Result Text (e.g. "Enchanted Book (Mending I)")
-                    graphics.text(this.font, trade.niceResultName, drawX, drawY + 4, 0xFFFFFF55); // Nice yellow color
+                    graphics.text(this.font, trade.niceResultName, drawX, drawY + 4, 0xFFFFFF55);
                 }
             }
         }
