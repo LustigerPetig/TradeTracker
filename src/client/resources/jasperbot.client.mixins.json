@@ -6,7 +6,7 @@
 		"EntityGlowMixin",
 		"GlBackendMixin",
 		"InteractionMixin",
-		"MerchantScreenMixin",
+		"AbstractContainerScreenMixin",
 		"TitleScreenMixin",
 		"MultiPlayerGameModeMixin"
 	],
