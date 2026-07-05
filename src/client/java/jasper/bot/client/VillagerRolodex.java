@@ -12,13 +12,12 @@ import java.util.*;
 
 public class VillagerRolodex {
 
-    // We now store the physical ItemStacks!
     public static class TradeInfo {
         public final UUID villagerId;
         public final ItemStack costA;
         public final ItemStack costB;
         public final ItemStack result;
-        public final String niceResultName; // Text to display next to the result item
+        public final String niceResultName;
         public final String resultSearchKey;
 
         public TradeInfo(UUID villagerId, ItemStack costA, ItemStack costB, ItemStack result, String niceResultName, String resultSearchKey) {
@@ -27,7 +26,7 @@ public class VillagerRolodex {
             this.costB = costB;
             this.result = result;
             this.niceResultName = niceResultName;
-            this.resultSearchKey = resultSearchKey.toLowerCase(); // Lowercase for easy searching
+            this.resultSearchKey = resultSearchKey.toLowerCase();
         }
     }
 
@@ -42,12 +41,10 @@ public class VillagerRolodex {
         List<TradeInfo> trades = new ArrayList<>();
 
         for (MerchantOffer offer : offers) {
-            // MUST copy the stacks so they don't despawn when the menu closes
             ItemStack costA = offer.getBaseCostA().copy();
             ItemStack costB = offer.getCostB().copy();
             ItemStack result = offer.getResult().copy();
 
-            // Get a clean name for the UI (e.g. "Enchanted Book")
             String niceName = result.getHoverName().getString();
 
             List<Component> tooltips = result.getTooltipLines(
@@ -56,12 +53,10 @@ public class VillagerRolodex {
                     TooltipFlag.NORMAL
             );
 
-            // Magic hack: If it's an Enchanted Book, steal the enchant name from the tooltip!
             if (niceName.contains("Enchanted Book") && tooltips.size() > 1) {
                 niceName += " (" + tooltips.get(1).getString() + ")";
             }
 
-            // Build the hidden search key using ALL text on the result item
             StringBuilder searchKey = new StringBuilder();
             for (Component line : tooltips) {
                 searchKey.append(line.getString()).append(" ");
@@ -72,6 +67,7 @@ public class VillagerRolodex {
 
         CACHE.put(villagerId, trades);
 
+        // This is the line that triggered your error; it should now link perfectly to RolodexStorage.java!
         RolodexStorage.save();
     }
 

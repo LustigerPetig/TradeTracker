@@ -56,8 +56,7 @@ public class RolodexStorage {
             for (Map.Entry<UUID, List<VillagerRolodex.TradeInfo>> entry : VillagerRolodex.CACHE.entrySet()) {
                 CompoundTag villagerTag = new CompoundTag();
 
-                // FIX: 26.2 no longer uses putUUID. We must use NbtUtils to convert the UUID to an IntArrayTag!
-                villagerTag.put("VillagerID", net.minecraft.nbt.NbtUtils.createUUID(entry.getKey()));
+                villagerTag.putString("VillagerID", entry.getKey().toString());
 
                 ListTag tradesList = new ListTag();
                 for (VillagerRolodex.TradeInfo trade : entry.getValue()) {
@@ -98,7 +97,7 @@ public class RolodexStorage {
             RegistryAccess regs = client.getConnection().registryAccess();
             CompoundTag root = NbtIo.readCompressed(savePath, NbtAccounter.unlimitedHeap());
 
-            Optional<ListTag> villagersOpt = root.getList("Villagers", 10);
+            Optional<ListTag> villagersOpt = root.getList("Villagers");
             if (villagersOpt.isEmpty()) return;
             ListTag villagersList = villagersOpt.get();
 
@@ -107,12 +106,18 @@ public class RolodexStorage {
                 if (villagerTagOpt.isEmpty()) continue;
                 CompoundTag villagerTag = villagerTagOpt.get();
 
-                // FIX: 26.2 no longer uses getUUID. We must extract the IntArrayTag and convert it back!
-                if (!villagerTag.hasUUID("VillagerID")) continue; // hasUUID still exists as a helper
-                UUID uuid = net.minecraft.nbt.NbtUtils.loadUUID(villagerTag.get("VillagerID").orElseThrow());
+                Optional<String> uuidStrOpt = villagerTag.getString("VillagerID");
+                if (uuidStrOpt.isEmpty() || uuidStrOpt.get().isEmpty()) continue;
+
+                UUID uuid;
+                try {
+                    uuid = UUID.fromString(uuidStrOpt.get());
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
 
                 List<VillagerRolodex.TradeInfo> trades = new ArrayList<>();
-                Optional<ListTag> tradesListOpt = villagerTag.getList("Trades", 10);
+                Optional<ListTag> tradesListOpt = villagerTag.getList("Trades");
 
                 if (tradesListOpt.isPresent()) {
                     ListTag tradesList = tradesListOpt.get();
