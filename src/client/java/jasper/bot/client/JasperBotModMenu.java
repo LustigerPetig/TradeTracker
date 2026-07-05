@@ -17,9 +17,7 @@ public class JasperBotModMenu implements ModMenuApi {
                 @Override
                 public void onClose() {
                     // When the user presses ESC, send them safely back to ModMenu
-                    if (this.minecraft != null) {
-                        this.minecraft.gui.setScreen(parentScreen);
-                    }
+                    this.minecraft.gui.setScreen(parentScreen);
                 }
             };
 
