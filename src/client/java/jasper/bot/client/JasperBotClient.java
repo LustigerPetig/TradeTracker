@@ -1,16 +1,19 @@
 package jasper.bot.client;
 
+import jasper.bot.JasperBot;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 public class JasperBotClient implements ClientModInitializer {
-
+    public static final KeyMapping.Category JASPERBOT_CATEGORY = KeyMapping.Category.register(
+            Identifier.fromNamespaceAndPath(JasperBot.MOD_ID, "jasperbot.binds")
+    );
     private static KeyMapping searchKeyBinding;
-
     @Override
     public void onInitializeClient() {
         // 1. Create the Keybind using KeyMappingHelper (Mojmap name)
@@ -19,8 +22,7 @@ public class JasperBotClient implements ClientModInitializer {
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_R,
                 // Use KeyMapping.Category to define the group
-                KeyMapping.Category.GAMEPLAY
-        ));
+                this.JASPERBOT_CATEGORY    ));
 
         // 2. Listen for the key press every frame
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
