@@ -19,7 +19,7 @@ public class TitleScreenMixin {
 
         graphics.text(
                 font,
-                "Jasper lutscht massive Eier",
+                "Jasper stinkt!",
                 10,
                 10,
                 ARGB.white(1.0F)
