@@ -71,6 +71,8 @@ public class VillagerRolodex {
         }
 
         CACHE.put(villagerId, trades);
+
+        RolodexStorage.save();
     }
 
     public static boolean isMatch(UUID villagerId) {
