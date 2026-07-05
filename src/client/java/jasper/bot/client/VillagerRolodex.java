@@ -12,21 +12,25 @@ import java.util.*;
 
 public class VillagerRolodex {
 
-    // NEW: A dedicated object to hold separated trade data!
+    // We now store the physical ItemStacks!
     public static class TradeInfo {
         public final UUID villagerId;
-        public final String displayString;
+        public final ItemStack costA;
+        public final ItemStack costB;
+        public final ItemStack result;
+        public final String niceResultName; // Text to display next to the result item
         public final String resultSearchKey;
 
-        public TradeInfo(UUID villagerId, String displayString, String resultSearchKey) {
+        public TradeInfo(UUID villagerId, ItemStack costA, ItemStack costB, ItemStack result, String niceResultName, String resultSearchKey) {
             this.villagerId = villagerId;
-            this.displayString = displayString;
-            // Force lowercase so our search is never case-sensitive
-            this.resultSearchKey = resultSearchKey.toLowerCase();
+            this.costA = costA;
+            this.costB = costB;
+            this.result = result;
+            this.niceResultName = niceResultName;
+            this.resultSearchKey = resultSearchKey.toLowerCase(); // Lowercase for easy searching
         }
     }
 
-    // Our cache now stores a List of TradeInfo objects for each UUID
     public static final Map<UUID, List<TradeInfo>> CACHE = new HashMap<>();
 
     public static String searchQuery = "";
@@ -38,72 +42,46 @@ public class VillagerRolodex {
         List<TradeInfo> trades = new ArrayList<>();
 
         for (MerchantOffer offer : offers) {
-            ItemStack costA = offer.getBaseCostA();
-            ItemStack costB = offer.getCostB();
-            ItemStack result = offer.getResult();
+            // MUST copy the stacks so they don't despawn when the menu closes
+            ItemStack costA = offer.getBaseCostA().copy();
+            ItemStack costB = offer.getCostB().copy();
+            ItemStack result = offer.getResult().copy();
 
-            // 1. Format the Input Cost (What you give)
-            String costStr = getCompactName(costA);
-            if (!costB.isEmpty()) {
-                costStr += " + " + getCompactName(costB);
-            }
+            // Get a clean name for the UI (e.g. "Enchanted Book")
+            String niceName = result.getHoverName().getString();
 
-            // 2. Format the Output Result (What you get)
-            String resultStr = getCompactName(result);
-
-            // 3. Combine them for the UI button
-            String display = costStr + " -> " + resultStr;
-
-            // 4. Build a hidden search key from ALL tooltip lines of the RESULT ONLY
-            StringBuilder searchKey = new StringBuilder();
             List<Component> tooltips = result.getTooltipLines(
                     Item.TooltipContext.of(Minecraft.getInstance().level),
                     Minecraft.getInstance().player,
                     TooltipFlag.NORMAL
             );
+
+            // Magic hack: If it's an Enchanted Book, steal the enchant name from the tooltip!
+            if (niceName.contains("Enchanted Book") && tooltips.size() > 1) {
+                niceName += " (" + tooltips.get(1).getString() + ")";
+            }
+
+            // Build the hidden search key using ALL text on the result item
+            StringBuilder searchKey = new StringBuilder();
             for (Component line : tooltips) {
                 searchKey.append(line.getString()).append(" ");
             }
 
-            trades.add(new TradeInfo(villagerId, display, searchKey.toString()));
+            trades.add(new TradeInfo(villagerId, costA, costB, result, niceName, searchKey.toString()));
         }
 
         CACHE.put(villagerId, trades);
     }
 
-    // Helper method to make item text look nice (e.g. "24x Emerald" or "1x Enchanted Book (Mending I)")
-    private static String getCompactName(ItemStack stack) {
-        if (stack.isEmpty()) return "";
-
-        List<Component> tooltip = stack.getTooltipLines(
-                Item.TooltipContext.of(Minecraft.getInstance().level),
-                Minecraft.getInstance().player,
-                TooltipFlag.NORMAL
-        );
-
-        if (tooltip.isEmpty()) return stack.getCount() + "x Unknown";
-
-        String name = stack.getCount() + "x " + tooltip.get(0).getString();
-
-        // Magic hack: If it's an Enchanted Book, append the enchantment name from line 2
-        if (name.contains("Enchanted Book") && tooltip.size() > 1) {
-            name += " (" + tooltip.get(1).getString() + ")";
-        }
-
-        return name;
-    }
-
     public static boolean isMatch(UUID villagerId) {
-        // 1. If we clicked a specific trade button, ONLY glow that targeted villager
         if (targetedVillager != null) {
             if (System.currentTimeMillis() < glowExpiration) {
                 return villagerId.equals(targetedVillager);
             } else {
-                targetedVillager = null; // 10 seconds is up, turn off the target lock
+                targetedVillager = null;
             }
         }
 
-        // 2. Normal generic search bar behavior
         if (searchQuery.isEmpty()) return false;
 
         List<TradeInfo> trades = CACHE.get(villagerId);
