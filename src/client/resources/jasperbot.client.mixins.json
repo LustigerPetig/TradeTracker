@@ -3,7 +3,8 @@
 	"package": "jasper.bot.client.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
-		"ExampleClientMixin"
+		"TitleScreenMixin",
+		"GlBackendMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
