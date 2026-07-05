@@ -1,53 +1,120 @@
 package jasper.bot.client;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.Item;
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
-import net.minecraft.network.chat.Component;
 
 import java.util.*;
 
 public class VillagerRolodex {
-    // Stores Villager UUID -> One massive string containing all their item tooltips
-    public static final Map<UUID, String> CACHE = new HashMap<>();
 
-    // The current text typed into the search menu
+    // NEW: A dedicated object to hold separated trade data!
+    public static class TradeInfo {
+        public final UUID villagerId;
+        public final String displayString;
+        public final String resultSearchKey;
+
+        public TradeInfo(UUID villagerId, String displayString, String resultSearchKey) {
+            this.villagerId = villagerId;
+            this.displayString = displayString;
+            // Force lowercase so our search is never case-sensitive
+            this.resultSearchKey = resultSearchKey.toLowerCase();
+        }
+    }
+
+    // Our cache now stores a List of TradeInfo objects for each UUID
+    public static final Map<UUID, List<TradeInfo>> CACHE = new HashMap<>();
+
     public static String searchQuery = "";
-
-    // Temporarily holds the UUID of the villager we just right-clicked
     public static UUID lastInteractedVillager = null;
+    public static UUID targetedVillager = null;
+    public static long glowExpiration = 0;
 
-    // Helper to extract text from a villager's trades (like "Enchanted Book Mending I")
     public static void cacheTrades(UUID villagerId, MerchantOffers offers) {
-        StringBuilder allTrades = new StringBuilder();
+        List<TradeInfo> trades = new ArrayList<>();
 
         for (MerchantOffer offer : offers) {
-            ItemStack resultItem = offer.getResult();
+            ItemStack costA = offer.getBaseCostA();
+            ItemStack costB = offer.getCostB();
+            ItemStack result = offer.getResult();
 
-            // We grab the full tooltip so we can read enchantments, not just the item name!
-            List<Component> tooltip = resultItem.getTooltipLines(
+            // 1. Format the Input Cost (What you give)
+            String costStr = getCompactName(costA);
+            if (!costB.isEmpty()) {
+                costStr += " + " + getCompactName(costB);
+            }
+
+            // 2. Format the Output Result (What you get)
+            String resultStr = getCompactName(result);
+
+            // 3. Combine them for the UI button
+            String display = costStr + " -> " + resultStr;
+
+            // 4. Build a hidden search key from ALL tooltip lines of the RESULT ONLY
+            StringBuilder searchKey = new StringBuilder();
+            List<Component> tooltips = result.getTooltipLines(
                     Item.TooltipContext.of(Minecraft.getInstance().level),
                     Minecraft.getInstance().player,
                     TooltipFlag.NORMAL
             );
+            for (Component line : tooltips) {
+                searchKey.append(line.getString()).append(" ");
+            }
 
-            for (Component line : tooltip) {
-                allTrades.append(line.getString().toLowerCase()).append(" ");
+            trades.add(new TradeInfo(villagerId, display, searchKey.toString()));
+        }
+
+        CACHE.put(villagerId, trades);
+    }
+
+    // Helper method to make item text look nice (e.g. "24x Emerald" or "1x Enchanted Book (Mending I)")
+    private static String getCompactName(ItemStack stack) {
+        if (stack.isEmpty()) return "";
+
+        List<Component> tooltip = stack.getTooltipLines(
+                Item.TooltipContext.of(Minecraft.getInstance().level),
+                Minecraft.getInstance().player,
+                TooltipFlag.NORMAL
+        );
+
+        if (tooltip.isEmpty()) return stack.getCount() + "x Unknown";
+
+        String name = stack.getCount() + "x " + tooltip.get(0).getString();
+
+        // Magic hack: If it's an Enchanted Book, append the enchantment name from line 2
+        if (name.contains("Enchanted Book") && tooltip.size() > 1) {
+            name += " (" + tooltip.get(1).getString() + ")";
+        }
+
+        return name;
+    }
+
+    public static boolean isMatch(UUID villagerId) {
+        // 1. If we clicked a specific trade button, ONLY glow that targeted villager
+        if (targetedVillager != null) {
+            if (System.currentTimeMillis() < glowExpiration) {
+                return villagerId.equals(targetedVillager);
+            } else {
+                targetedVillager = null; // 10 seconds is up, turn off the target lock
             }
         }
 
-        CACHE.put(villagerId, allTrades.toString());
-    }
-
-    // Helper to check if a villager should glow
-    public static boolean isMatch(UUID villagerId) {
+        // 2. Normal generic search bar behavior
         if (searchQuery.isEmpty()) return false;
-        String trades = CACHE.get(villagerId);
-        boolean result = trades != null && trades.contains(searchQuery.toLowerCase());
-        System.out.println("[Rolodex] isMatch check: query=" + searchQuery + ", cached=" + trades + ", result=" + result);
-        return result;
+
+        List<TradeInfo> trades = CACHE.get(villagerId);
+        if (trades == null) return false;
+
+        String query = searchQuery.toLowerCase();
+        for (TradeInfo trade : trades) {
+            if (trade.resultSearchKey.contains(query)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
