@@ -49,6 +49,7 @@ public class RolodexSearchScreen extends Screen {
 
         this.searchBox = new EditBox(this.font, this.width / 2 - 100, 15, 200, 20, Component.literal("Search Trades"));
         this.searchBox.setMaxLength(50);
+        this.searchBox.setValue(VillagerRolodex.searchQuery);
         this.searchBox.setResponder(text -> {
             VillagerRolodex.searchQuery = text.trim();
             this.scrollOffset = 0;
