@@ -62,9 +62,10 @@ public class RolodexStorage {
                 for (VillagerRolodex.TradeInfo trade : entry.getValue()) {
                     CompoundTag tradeTag = new CompoundTag();
 
-                    tradeTag.put("CostA", ItemStack.CODEC.encodeStart(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), trade.costA).getOrThrow());
-                    tradeTag.put("CostB", ItemStack.CODEC.encodeStart(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), trade.costB).getOrThrow());
-                    tradeTag.put("Result", ItemStack.CODEC.encodeStart(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), trade.result).getOrThrow());
+                    // FIX: Swapped CODEC for OPTIONAL_CODEC to allow empty items (like an empty CostB)
+                    tradeTag.put("CostA", ItemStack.OPTIONAL_CODEC.encodeStart(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), trade.costA).getOrThrow());
+                    tradeTag.put("CostB", ItemStack.OPTIONAL_CODEC.encodeStart(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), trade.costB).getOrThrow());
+                    tradeTag.put("Result", ItemStack.OPTIONAL_CODEC.encodeStart(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), trade.result).getOrThrow());
 
                     tradeTag.putString("NiceName", trade.niceResultName);
                     tradeTag.putString("SearchKey", trade.resultSearchKey);
@@ -126,9 +127,10 @@ public class RolodexStorage {
                         if (tradeTagOpt.isEmpty()) continue;
                         CompoundTag tradeTag = tradeTagOpt.get();
 
-                        ItemStack costA = ItemStack.CODEC.parse(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), tradeTag.getCompound("CostA").orElse(new CompoundTag())).getOrThrow();
-                        ItemStack costB = ItemStack.CODEC.parse(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), tradeTag.getCompound("CostB").orElse(new CompoundTag())).getOrThrow();
-                        ItemStack result = ItemStack.CODEC.parse(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), tradeTag.getCompound("Result").orElse(new CompoundTag())).getOrThrow();
+                        // FIX: Swapped CODEC for OPTIONAL_CODEC here as well
+                        ItemStack costA = ItemStack.OPTIONAL_CODEC.parse(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), tradeTag.getCompound("CostA").orElse(new CompoundTag())).getOrThrow();
+                        ItemStack costB = ItemStack.OPTIONAL_CODEC.parse(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), tradeTag.getCompound("CostB").orElse(new CompoundTag())).getOrThrow();
+                        ItemStack result = ItemStack.OPTIONAL_CODEC.parse(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), tradeTag.getCompound("Result").orElse(new CompoundTag())).getOrThrow();
 
                         String niceName = tradeTag.getString("NiceName").orElse("Unknown");
                         String searchKey = tradeTag.getString("SearchKey").orElse("");
