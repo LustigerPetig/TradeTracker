@@ -159,9 +159,24 @@ public class RolodexSearchScreen extends Screen {
                     int drawX = btn.getX() + 10;
                     int drawY = btn.getY() + 4;
 
-                    graphics.item(trade.costA, drawX, drawY);
-                    graphics.itemDecorations(this.font, trade.costA, drawX, drawY);
-                    drawX += 22;
+                    if (trade.costA.getCount() == trade.localCostA.getCount()) {
+                        graphics.item(trade.costA, drawX, drawY);
+                        graphics.itemDecorations(this.font, trade.costA, drawX, drawY);
+                        drawX += 22;
+
+                    } else{
+                        // 1. Wir zeichnen das ALTE Item (den Originalpreis)
+                        graphics.item(trade.costA, drawX, drawY);
+                        graphics.itemDecorations(this.font, trade.costA, drawX, drawY);
+
+                        graphics.fill(drawX +7, drawY + 12, drawX + 16, drawY + 13, 0xFFBA370F);
+
+                        drawX += 20;
+
+                        graphics.text(this.font, String.valueOf(trade.localCostA.getCount()), drawX, drawY + 9, ARGB.white(1.0f));
+
+                        drawX += 22;
+                    }
 
                     if (!trade.costB.isEmpty()) {
                         graphics.text(this.font, "+", drawX, drawY + 4, 0xFFAAAAAA);
