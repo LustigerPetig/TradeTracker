@@ -125,22 +125,7 @@ public class RolodexSearchScreen extends Screen {
         this.prevButton.active = this.scrollOffset > 0;
         this.nextButton.active = (this.scrollOffset + 1) * this.tradesPerPage < this.filteredTrades.size();
     }
-
-    @Override
-    public boolean keyPressed(KeyEvent event) {
-        if (this.searchBox.keyPressed(event)) {
-            return true;
-        }
-
-
-        if (JasperBotClient.searchKeyBinding.matches(event)) {
-            VillagerRolodex.targetedVillager = null;
-            this.onClose();
-            return true;
-        }
-
-        return super.keyPressed(event);
-    }
+    
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
