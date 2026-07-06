@@ -131,8 +131,9 @@ public class RolodexSearchScreen extends Screen {
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         super.extractRenderState(graphics, mouseX, mouseY, delta);
 
-        int total_pages = this.filteredTrades.size()/this.tradesPerPage;
-        String pageText = "Page " + (this.scrollOffset + 1) + " / " + (int) Math.ceil(total_pages) ;
+        float totalPages = (float) this.filteredTrades.size()/this.tradesPerPage;
+
+        String pageText = "Page " + (this.scrollOffset + 1) + " / " + (int) Math.ceil(totalPages) ;
         if (this.filteredTrades.isEmpty()) pageText = "No cached trades found!";
         graphics.text(this.font, pageText, this.width / 2 - this.font.width(pageText) / 2, this.height - 25, ARGB.white(1.0F));
 
