@@ -77,7 +77,6 @@ public class VillagerRolodex {
                     Minecraft.getInstance().player,
                     TooltipFlag.NORMAL
             );
-            System.out.println(BuiltInRegistries.ITEM.getKey(localCostA.getItem()).toString());
             if (BuiltInRegistries.ITEM.getKey(result.getItem()).toString().equals("minecraft:enchanted_book") && tooltips.size() > 1){
                 niceName += " (" + tooltips.get(1).getString() + ")";
             }
