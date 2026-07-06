@@ -15,7 +15,7 @@ public class JasperBotClient implements ClientModInitializer {
     public static final KeyMapping.Category JASPERBOT_CATEGORY = KeyMapping.Category.register(
             Identifier.fromNamespaceAndPath(JasperBot.MOD_ID, "jasperbot.binds")
     );
-    private static KeyMapping searchKeyBinding;
+    public static KeyMapping searchKeyBinding;
 
     @Override
     public void onInitializeClient() {

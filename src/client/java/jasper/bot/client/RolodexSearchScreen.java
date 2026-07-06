@@ -131,8 +131,8 @@ public class RolodexSearchScreen extends Screen {
             return true;
         }
 
-        int keyCode = event.key();
-        if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
+
+        if (JasperBotClient.searchKeyBinding.matches(event)) {
             VillagerRolodex.targetedVillager = null;
             this.onClose();
             return true;
