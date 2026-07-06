@@ -16,13 +16,15 @@ public class VillagerRolodex {
 
     public static class TradeInfo {
         public final ItemStack costA;
+        public final ItemStack localCostA;
         public final ItemStack costB;
         public final ItemStack result;
         public final String niceResultName;
         public final String resultSearchKey;
 
-        public TradeInfo(ItemStack costA, ItemStack costB, ItemStack result, String niceResultName, String resultSearchKey) {
+        public TradeInfo(ItemStack costA,ItemStack localCostA, ItemStack costB, ItemStack result, String niceResultName, String resultSearchKey) {
             this.costA = costA;
+            this.localCostA = localCostA;
             this.costB = costB;
             this.result = result;
             this.niceResultName = niceResultName;
@@ -63,6 +65,7 @@ public class VillagerRolodex {
 
         for (MerchantOffer offer : offers) {
             ItemStack costA = offer.getBaseCostA().copy();
+            ItemStack localCostA = offer.getCostA().copy();
             ItemStack costB = offer.getCostB().copy();
             ItemStack result = offer.getResult().copy();
 
@@ -83,7 +86,7 @@ public class VillagerRolodex {
                 searchKey.append(line.getString()).append(" ");
             }
 
-            trades.add(new TradeInfo(costA, costB, result, niceName, searchKey.toString()));
+            trades.add(new TradeInfo(costA,localCostA, costB, result, niceName, searchKey.toString()));
         }
 
         // Create Villager Object and save to cache
