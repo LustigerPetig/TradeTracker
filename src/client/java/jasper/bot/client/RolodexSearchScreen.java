@@ -11,7 +11,9 @@ import net.minecraft.util.ARGB;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
+import java.util.HashSet; // ADDED
 import java.util.List;
+import java.util.Set; // ADDED
 import java.util.UUID;
 
 public class RolodexSearchScreen extends Screen {
@@ -23,7 +25,6 @@ public class RolodexSearchScreen extends Screen {
     private Button nextButton;
     private Button prevButton;
 
-    // NEW: This is now a dynamic variable, calculated every time the screen opens or resizes!
     private int tradesPerPage = 5;
 
     private final List<DisplayTrade> filteredTrades = new ArrayList<>();
@@ -36,17 +37,10 @@ public class RolodexSearchScreen extends Screen {
     protected void init() {
         super.init();
 
-        // CRITICAL: Clear the old buttons in case the player resizes the window while the menu is open
         this.tradeButtons.clear();
 
-        // --- THE RESPONSIVE MATH ---
-        // Top margin (Search bar) takes up ~45 pixels.
-        // Bottom margin (Pagination) takes up ~40 pixels.
-        // Total usable space = height - 85.
-        // Each button is 24px tall + 2px gap = 26px step.
         int usableHeight = this.height - 85;
-        this.tradesPerPage = Math.max(1, usableHeight / 26); // Ensure it always fits at least 1!
-        // ---------------------------
+        this.tradesPerPage = Math.max(1, usableHeight / 26);
 
         this.searchBox = new EditBox(this.font, this.width / 2 - 100, 15, 200, 20, Component.literal("Search Trades"));
         this.searchBox.setMaxLength(50);
@@ -77,7 +71,6 @@ public class RolodexSearchScreen extends Screen {
         this.addRenderableWidget(this.prevButton);
         this.addRenderableWidget(this.nextButton);
 
-        // Generate exactly as many buttons as the screen can hold
         for (int i = 0; i < this.tradesPerPage; i++) {
             int index = i;
             Button btn = Button.builder(Component.empty(), b -> {
@@ -102,10 +95,26 @@ public class RolodexSearchScreen extends Screen {
         this.filteredTrades.clear();
         String query = VillagerRolodex.searchQuery.toLowerCase();
 
+        // 1. Scan client memory for any villager entities that are currently rendering
+        Set<UUID> nearbyVillagers = new HashSet<>();
+        if (Minecraft.getInstance().level != null) {
+            Minecraft.getInstance().level.entitiesForRendering().forEach(entity -> {
+                if (entity instanceof net.minecraft.world.entity.npc.villager.Villager) {
+                    nearbyVillagers.add(entity.getUUID());
+                }
+            });
+        }
+
+        // 2. Filter your structural database by checking if the villager's UUID is in render distance
         for (VillagerRolodex.IndexedVillager villager : VillagerRolodex.CACHE.values()) {
+
+            // NEW: Skip this villager's trades completely if they aren't loaded around the player
+            if (!nearbyVillagers.contains(villager.uuid)) {
+                continue;
+            }
+
             for (VillagerRolodex.TradeInfo trade : villager.trades) {
                 if (query.isEmpty() || trade.resultSearchKey.contains(query)) {
-                    // NEU: Wir verpacken den Villager und seinen Trade in unser Display-Paket
                     this.filteredTrades.add(new DisplayTrade(villager, trade));
                 }
             }
@@ -128,15 +137,15 @@ public class RolodexSearchScreen extends Screen {
         this.nextButton.active = (this.scrollOffset + 1) * this.tradesPerPage < this.filteredTrades.size();
     }
 
-
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         super.extractRenderState(graphics, mouseX, mouseY, delta);
 
-        float totalPages = (float) this.filteredTrades.size()/this.tradesPerPage;
+        float totalPages = (float) this.filteredTrades.size() / this.tradesPerPage;
 
-        String pageText = "Page " + (this.scrollOffset + 1) + " / " + (int) Math.ceil(totalPages) ;
-        if (this.filteredTrades.isEmpty()) pageText = "No cached trades found!";
+        String pageText = "Page " + (this.scrollOffset + 1) + " / " + (int) Math.ceil(totalPages);
+        // CHANGED: Informative message updating the context to nearby matches
+        if (this.filteredTrades.isEmpty()) pageText = "No cached trades nearby!";
         graphics.text(this.font, pageText, this.width / 2 - this.font.width(pageText) / 2, this.height - 25, ARGB.white(1.0F));
 
         for (int i = 0; i < this.tradesPerPage; i++) {
@@ -146,7 +155,6 @@ public class RolodexSearchScreen extends Screen {
                 if (actualIndex < this.filteredTrades.size()) {
                     DisplayTrade entry = this.filteredTrades.get(actualIndex);
                     VillagerRolodex.TradeInfo trade = entry.trade();
-                    VillagerRolodex.IndexedVillager villager = entry.villager();
 
                     int drawX = btn.getX() + 10;
                     int drawY = btn.getY() + 4;
