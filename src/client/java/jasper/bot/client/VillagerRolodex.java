@@ -1,6 +1,7 @@
 package jasper.bot.client;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.item.Item;
@@ -76,8 +77,8 @@ public class VillagerRolodex {
                     Minecraft.getInstance().player,
                     TooltipFlag.NORMAL
             );
-
-            if (niceName.contains("Enchanted Book") && tooltips.size() > 1) {
+            System.out.println(BuiltInRegistries.ITEM.getKey(localCostA.getItem()).toString());
+            if (BuiltInRegistries.ITEM.getKey(result.getItem()).toString().equals("minecraft:enchanted_book") && tooltips.size() > 1){
                 niceName += " (" + tooltips.get(1).getString() + ")";
             }
 
