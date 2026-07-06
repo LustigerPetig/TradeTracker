@@ -85,12 +85,12 @@ public class VillagerRolodex {
         List<TradeInfo> trades = CACHE.get(villagerId);
         if (trades == null) return false;
 
-        String query = searchQuery.toLowerCase();
-        for (TradeInfo trade : trades) {
-            if (trade.resultSearchKey.contains(query)) {
-                return true;
-            }
-        }
+        // String query = searchQuery.toLowerCase();
+        // for (TradeInfo trade : trades) {
+        //    if (trade.resultSearchKey.contains(query)) {
+        //        return true;
+        //    }
+        //}
         return false;
     }
 }
