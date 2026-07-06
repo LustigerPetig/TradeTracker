@@ -19,8 +19,13 @@ public abstract class MultiPlayerGameModeMixin {
     @Inject(method = "interact", at = @At("HEAD"))
     private void onInteract(Player player, Entity entity, EntityHitResult hitResult, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
         if (entity instanceof Villager villager) {
+            // Wir merken uns die UUID
             VillagerRolodex.lastInteractedVillager = villager.getUUID();
-            System.out.println("[Rolodex] Interacted with villager: " + villager.getUUID());
+
+            // NEU: Wir merken uns auch das komplette Entity für später!
+            VillagerRolodex.lastInteractedVillagerEntity = villager;
+
+            System.out.println("[Rolodex] Interacted with villager: " + villager.getUUID() + " | Beruf: " + villager.getVillagerData().profession().getRegisteredName());
         }
     }
 }

@@ -2,6 +2,7 @@ package jasper.bot.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -12,16 +13,16 @@ import java.util.*;
 
 public class VillagerRolodex {
 
+
+    // 1. Die TradeInfo braucht keine UUID mehr, sie ist jetzt "dumm" und hält nur die Item-Daten
     public static class TradeInfo {
-        public final UUID villagerId;
         public final ItemStack costA;
         public final ItemStack costB;
         public final ItemStack result;
         public final String niceResultName;
         public final String resultSearchKey;
 
-        public TradeInfo(UUID villagerId, ItemStack costA, ItemStack costB, ItemStack result, String niceResultName, String resultSearchKey) {
-            this.villagerId = villagerId;
+        public TradeInfo(ItemStack costA, ItemStack costB, ItemStack result, String niceResultName, String resultSearchKey) {
             this.costA = costA;
             this.costB = costB;
             this.result = result;
@@ -30,14 +31,35 @@ public class VillagerRolodex {
         }
     }
 
-    public static final Map<UUID, List<TradeInfo>> CACHE = new HashMap<>();
+    // 2. Deine neue Villager-Klasse, die alles zusammenhält
+    public static class IndexedVillager {
+        public final UUID uuid;
+        public String profession;
+        public int level;
+        public int chunkX;
+        public int chunkZ;
+        public List<TradeInfo> trades;
 
+        public IndexedVillager(UUID uuid, String profession, int level, int chunkX, int chunkZ, List<TradeInfo> trades) {
+            this.uuid = uuid;
+            this.profession = profession;
+            this.level = level;
+            this.chunkX = chunkX;
+            this.chunkZ = chunkZ;
+            this.trades = trades;
+        }
+    }
+
+    // 3. Der Cache mapped nun von UUID auf das komplette Villager-Objekt
+    public static final Map<UUID, IndexedVillager> CACHE = new HashMap<>();
+    public static Villager lastInteractedVillagerEntity = null;
     public static String searchQuery = "";
     public static UUID lastInteractedVillager = null;
     public static UUID targetedVillager = null;
     public static long glowExpiration = 0;
 
-    public static void cacheTrades(UUID villagerId, MerchantOffers offers) {
+    // 4. Die Methode nimmt jetzt auch die Metadaten des Villagers entgegen
+    public static void cacheVillager(UUID villagerId, String profession, int level, int chunkX, int chunkZ, MerchantOffers offers) {
         List<TradeInfo> trades = new ArrayList<>();
 
         for (MerchantOffer offer : offers) {
@@ -62,15 +84,17 @@ public class VillagerRolodex {
                 searchKey.append(line.getString()).append(" ");
             }
 
-            trades.add(new TradeInfo(villagerId, costA, costB, result, niceName, searchKey.toString()));
+            trades.add(new TradeInfo(costA, costB, result, niceName, searchKey.toString()));
         }
 
-        CACHE.put(villagerId, trades);
+        // Wir erstellen das neue Villager-Objekt und legen es im Cache ab
+        IndexedVillager indexedVillager = new IndexedVillager(villagerId, profession, level, chunkX, chunkZ, trades);
+        CACHE.put(villagerId, indexedVillager);
 
-        // This is the line that triggered your error; it should now link perfectly to RolodexStorage.java!
         RolodexStorage.save();
     }
 
+    // 5. Angepasste isMatch-Methode für die neue Datenstruktur
     public static boolean isMatch(UUID villagerId) {
         if (targetedVillager != null) {
             if (System.currentTimeMillis() < glowExpiration) {
@@ -82,11 +106,12 @@ public class VillagerRolodex {
 
         if (searchQuery.isEmpty()) return false;
 
-        List<TradeInfo> trades = CACHE.get(villagerId);
-        if (trades == null) return false;
+        // Wir holen uns jetzt den IndexedVillager aus dem Cache, nicht mehr direkt die Liste
+        IndexedVillager villager = CACHE.get(villagerId);
+        if (villager == null) return false;
 
         // String query = searchQuery.toLowerCase();
-        // for (TradeInfo trade : trades) {
+        // for (TradeInfo trade : villager.trades) {  // <-- Hier greifen wir jetzt über villager.trades zu
         //    if (trade.resultSearchKey.contains(query)) {
         //        return true;
         //    }

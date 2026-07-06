@@ -16,6 +16,7 @@ import java.util.UUID;
 
 public class RolodexSearchScreen extends Screen {
 
+    private record DisplayTrade(VillagerRolodex.IndexedVillager villager, VillagerRolodex.TradeInfo trade) {}
     private EditBox searchBox;
     private final List<Button> tradeButtons = new ArrayList<>();
     private int scrollOffset = 0;
@@ -25,7 +26,7 @@ public class RolodexSearchScreen extends Screen {
     // NEW: This is now a dynamic variable, calculated every time the screen opens or resizes!
     private int tradesPerPage = 5;
 
-    private final List<VillagerRolodex.TradeInfo> filteredTrades = new ArrayList<>();
+    private final List<DisplayTrade> filteredTrades = new ArrayList<>();
 
     public RolodexSearchScreen() {
         super(Component.literal("Villager Rolodex"));
@@ -82,7 +83,7 @@ public class RolodexSearchScreen extends Screen {
             Button btn = Button.builder(Component.empty(), b -> {
                         int actualIndex = (this.scrollOffset * this.tradesPerPage) + index;
                         if (actualIndex < this.filteredTrades.size()) {
-                            UUID target = this.filteredTrades.get(actualIndex).villagerId;
+                            UUID target = this.filteredTrades.get(actualIndex).villager().uuid;
                             VillagerRolodex.targetedVillager = target;
                             VillagerRolodex.glowExpiration = System.currentTimeMillis() + 10000;
                             this.onClose();
@@ -101,10 +102,11 @@ public class RolodexSearchScreen extends Screen {
         this.filteredTrades.clear();
         String query = VillagerRolodex.searchQuery.toLowerCase();
 
-        for (List<VillagerRolodex.TradeInfo> villagerTrades : VillagerRolodex.CACHE.values()) {
-            for (VillagerRolodex.TradeInfo trade : villagerTrades) {
+        for (VillagerRolodex.IndexedVillager villager : VillagerRolodex.CACHE.values()) {
+            for (VillagerRolodex.TradeInfo trade : villager.trades) {
                 if (query.isEmpty() || trade.resultSearchKey.contains(query)) {
-                    this.filteredTrades.add(trade);
+                    // NEU: Wir verpacken den Villager und seinen Trade in unser Display-Paket
+                    this.filteredTrades.add(new DisplayTrade(villager, trade));
                 }
             }
         }
@@ -142,7 +144,9 @@ public class RolodexSearchScreen extends Screen {
             if (btn.visible) {
                 int actualIndex = (this.scrollOffset * this.tradesPerPage) + i;
                 if (actualIndex < this.filteredTrades.size()) {
-                    VillagerRolodex.TradeInfo trade = this.filteredTrades.get(actualIndex);
+                    DisplayTrade entry = this.filteredTrades.get(actualIndex);
+                    VillagerRolodex.TradeInfo trade = entry.trade();
+                    VillagerRolodex.IndexedVillager villager = entry.villager();
 
                     int drawX = btn.getX() + 10;
                     int drawY = btn.getY() + 4;

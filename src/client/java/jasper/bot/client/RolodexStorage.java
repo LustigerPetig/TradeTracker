@@ -53,13 +53,17 @@ public class RolodexStorage {
             CompoundTag root = new CompoundTag();
             ListTag villagersList = new ListTag();
 
-            for (Map.Entry<UUID, List<VillagerRolodex.TradeInfo>> entry : VillagerRolodex.CACHE.entrySet()) {
+            for (VillagerRolodex.IndexedVillager villager : VillagerRolodex.CACHE.values()) {
                 CompoundTag villagerTag = new CompoundTag();
 
-                villagerTag.putString("VillagerID", entry.getKey().toString());
+                villagerTag.putString("VillagerID", villager.uuid.toString());
+                villagerTag.putString("Profession", villager.profession);
+                villagerTag.putInt("Level", villager.level);
+                villagerTag.putInt("ChunkX", villager.chunkX);
+                villagerTag.putInt("ChunkZ", villager.chunkZ);
 
                 ListTag tradesList = new ListTag();
-                for (VillagerRolodex.TradeInfo trade : entry.getValue()) {
+                for (VillagerRolodex.TradeInfo trade : villager.trades) {
                     CompoundTag tradeTag = new CompoundTag();
 
                     // FIX: Swapped CODEC for OPTIONAL_CODEC to allow empty items (like an empty CostB)
@@ -117,6 +121,11 @@ public class RolodexStorage {
                     continue;
                 }
 
+                String profession = villagerTag.getString("Profession").orElse("UNKNOWN");
+                int level = villagerTag.getInt("Level").orElse(1);
+                int chunkX = villagerTag.getInt("ChunkX").orElse(0);
+                int chunkZ = villagerTag.getInt("ChunkZ").orElse(0);
+
                 List<VillagerRolodex.TradeInfo> trades = new ArrayList<>();
                 Optional<ListTag> tradesListOpt = villagerTag.getList("Trades");
 
@@ -135,10 +144,11 @@ public class RolodexStorage {
                         String niceName = tradeTag.getString("NiceName").orElse("Unknown");
                         String searchKey = tradeTag.getString("SearchKey").orElse("");
 
-                        trades.add(new VillagerRolodex.TradeInfo(uuid, costA, costB, result, niceName, searchKey));
+                        trades.add(new VillagerRolodex.TradeInfo(costA, costB, result, niceName, searchKey));
                     }
                 }
-                VillagerRolodex.CACHE.put(uuid, trades);
+                VillagerRolodex.IndexedVillager indexedVillager = new VillagerRolodex.IndexedVillager(uuid, profession, level, chunkX, chunkZ, trades);
+                VillagerRolodex.CACHE.put(uuid, indexedVillager);
             }
             LOGGER.info("[Rolodex] Loaded {} villagers for server: {}", VillagerRolodex.CACHE.size(), getServerIdSanitized());
 
