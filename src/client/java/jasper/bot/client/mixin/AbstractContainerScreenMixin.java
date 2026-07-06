@@ -20,21 +20,21 @@ public abstract class AbstractContainerScreenMixin {
     @Inject(method = "containerTick", at = @At("HEAD"))
     private void onContainerTick(CallbackInfo ci) {
 
-        // Prüfen, ob wir wirklich im Villager-Handelsfenster sind
+        // Check for Trade Window
         if ((Object) this instanceof MerchantScreen screen) {
 
-            // Wenn wir diesen Villager schon gespeichert haben, brechen wir direkt ab
+            // Cancel if Villager already checked
             if (this.rolodexCached) return;
 
             MerchantMenu menu = screen.getMenu();
 
-            // Wir holen uns das Villager-Objekt, das wir beim Rechtsklick gespeichert haben
+            // get villager object
             Villager villager = VillagerRolodex.lastInteractedVillagerEntity;
 
-            // Prüfen, ob der Villager da ist, das Menü existiert und die Trades geladen sind
+            // Check Villager
             if (villager != null && menu != null && !menu.getOffers().isEmpty()) {
 
-                // 1. Alle neuen Metadaten aus dem Entity auslesen
+                // 1. Read metadata from Entity
                 String profession = villager.getVillagerData().profession().getRegisteredName();
                 int level = villager.getVillagerData().level();
                 int chunkX = villager.chunkPosition().x();
@@ -42,7 +42,7 @@ public abstract class AbstractContainerScreenMixin {
 
                 System.out.println("[Rolodex] Caching " + profession + " (Lvl " + level + ") at Chunk [" + chunkX + ", " + chunkZ + "]. Offers: " + menu.getOffers().size());
 
-                // 2. Deine neue Methode mit allen Daten aufrufen
+
                 VillagerRolodex.cacheVillager(
                         villager.getUUID(),
                         profession,

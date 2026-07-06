@@ -19,16 +19,14 @@ public class InteractionMixin {
     @Inject(method = "interact", at = @At("HEAD"))
     private void onInteract(Player player, Entity entity, EntityHitResult hitResult, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
 
-        if (entity instanceof Villager villager) { // Wir casten es direkt zu einem Villager
+        if (entity instanceof Villager villager) {
 
-            // Wir merken uns die UUID wie bisher...
+
             VillagerRolodex.lastInteractedVillager = villager.getUUID();
 
-            // ... UND wir merken uns das Entity selbst für später!
+
             VillagerRolodex.lastInteractedVillagerEntity = villager;
 
-            // (Optional) Du kannst hier auch schon mal in den Log schreiben, wen du geklickt hast:
-            // JasperBotClient.LOGGER.info("Villager angeklickt! Beruf: {}", villager.getVillagerData().getProfession().name());
         }
     }
 }

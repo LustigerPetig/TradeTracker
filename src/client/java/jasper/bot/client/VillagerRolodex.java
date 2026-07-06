@@ -14,7 +14,6 @@ import java.util.*;
 public class VillagerRolodex {
 
 
-    // 1. Die TradeInfo braucht keine UUID mehr, sie ist jetzt "dumm" und hält nur die Item-Daten
     public static class TradeInfo {
         public final ItemStack costA;
         public final ItemStack costB;
@@ -31,7 +30,7 @@ public class VillagerRolodex {
         }
     }
 
-    // 2. Deine neue Villager-Klasse, die alles zusammenhält
+
     public static class IndexedVillager {
         public final UUID uuid;
         public String profession;
@@ -50,7 +49,7 @@ public class VillagerRolodex {
         }
     }
 
-    // 3. Der Cache mapped nun von UUID auf das komplette Villager-Objekt
+
     public static final Map<UUID, IndexedVillager> CACHE = new HashMap<>();
     public static Villager lastInteractedVillagerEntity = null;
     public static String searchQuery = "";
@@ -58,7 +57,7 @@ public class VillagerRolodex {
     public static UUID targetedVillager = null;
     public static long glowExpiration = 0;
 
-    // 4. Die Methode nimmt jetzt auch die Metadaten des Villagers entgegen
+
     public static void cacheVillager(UUID villagerId, String profession, int level, int chunkX, int chunkZ, MerchantOffers offers) {
         List<TradeInfo> trades = new ArrayList<>();
 
@@ -87,14 +86,13 @@ public class VillagerRolodex {
             trades.add(new TradeInfo(costA, costB, result, niceName, searchKey.toString()));
         }
 
-        // Wir erstellen das neue Villager-Objekt und legen es im Cache ab
+        // Create Villager Object and save to cache
         IndexedVillager indexedVillager = new IndexedVillager(villagerId, profession, level, chunkX, chunkZ, trades);
         CACHE.put(villagerId, indexedVillager);
 
         RolodexStorage.save();
     }
 
-    // 5. Angepasste isMatch-Methode für die neue Datenstruktur
     public static boolean isMatch(UUID villagerId) {
         if (targetedVillager != null) {
             if (System.currentTimeMillis() < glowExpiration) {
@@ -106,7 +104,7 @@ public class VillagerRolodex {
 
         if (searchQuery.isEmpty()) return false;
 
-        // Wir holen uns jetzt den IndexedVillager aus dem Cache, nicht mehr direkt die Liste
+
         IndexedVillager villager = CACHE.get(villagerId);
         if (villager == null) return false;
 
