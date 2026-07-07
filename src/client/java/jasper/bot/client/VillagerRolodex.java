@@ -113,14 +113,6 @@ public class VillagerRolodex {
 
         IndexedVillager villager = CACHE.get(villagerId);
         if (villager == null) return false;
-
-        // 3. Check if any of the cached trades match the active search query
-        String query = searchQuery.toLowerCase();
-        for (TradeInfo trade : villager.trades) {
-            if (trade.resultSearchKey.contains(query)) {
-                return true;
-            }
-        }
         return false;
     }
 
