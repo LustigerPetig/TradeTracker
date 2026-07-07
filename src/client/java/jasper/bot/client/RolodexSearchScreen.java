@@ -18,7 +18,7 @@ import java.util.UUID;
 
 public class RolodexSearchScreen extends Screen {
 
-    private record DisplayTrade(VillagerRolodex.IndexedVillager villager, VillagerRolodex.TradeInfo trade) {}
+    private record DisplayTrade(VillagerRolodex.IndexedVillager villager, VillagerRolodex.TradeInfo trade, double distance) {}
     private EditBox searchBox;
     private final List<Button> tradeButtons = new ArrayList<>();
     private int scrollOffset = 0;
@@ -104,6 +104,13 @@ public class RolodexSearchScreen extends Screen {
                 }
             });
         }
+        Minecraft client = Minecraft.getInstance();
+        double playerX = 0;
+        double playerZ = 0;
+        if (client.player != null) {
+            playerX = client.player.getX();
+            playerZ = client.player.getZ();
+        }
 
         // 2. Filter your structural database by checking if the villager's UUID is in render distance
         for (VillagerRolodex.IndexedVillager villager : VillagerRolodex.CACHE.values()) {
@@ -113,9 +120,13 @@ public class RolodexSearchScreen extends Screen {
                 continue;
             }
 
+            double villagerX = (villager.chunkX * 16) + 8;
+            double villagerZ = (villager.chunkZ * 16) + 8;
+            double distance = Math.sqrt(Math.pow(playerX - villagerX, 2) + Math.pow(playerZ - villagerZ, 2));
+
             for (VillagerRolodex.TradeInfo trade : villager.trades) {
                 if (query.isEmpty() || trade.resultSearchKey.contains(query)) {
-                    this.filteredTrades.add(new DisplayTrade(villager, trade));
+                    this.filteredTrades.add(new DisplayTrade(villager, trade, distance));
                 }
             }
         }
@@ -194,6 +205,15 @@ public class RolodexSearchScreen extends Screen {
                     drawX += 22;
 
                     graphics.text(this.font, trade.niceResultName, drawX, drawY + 4, 0xFFFFFF55);
+
+                    drawX += 22;
+                    if (1 == 1) {
+                        double distance = entry.distance(); // Holt die Distanz aus unserem neuen Record
+                        String distanceText = String.format("%.0fm", distance);
+                        int textWidth = this.font.width(distanceText);
+                        int rightAlignedX = btn.getX() + btn.getWidth() - textWidth - 5;
+                        graphics.text(this.font, distanceText, rightAlignedX, drawY + 4, ARGB.white(1.0F));
+                    }
                 }
             }
         }

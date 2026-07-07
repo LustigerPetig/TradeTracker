@@ -2,7 +2,7 @@
 	"schemaVersion": 1,
 	"id": "jasperbot",
 	"version": "${version}",
-	"name": "JasperBot",
+	"name": "Trade Tracker",
 	"description": "Diese Mod wurde als Antwort auf Jaspers schwere Cheating-Abhängigkeit entwickelt.",
 	"authors": [
 		"John Minecraft"
