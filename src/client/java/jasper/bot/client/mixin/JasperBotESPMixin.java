@@ -46,6 +46,9 @@ public abstract class JasperBotESPMixin<T extends Entity, S extends EntityRender
     @Inject(method = "submit", at = @At("TAIL"), require = 1)
     private void jasperbot$drawBoundingBox(S state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState cameraRenderState, CallbackInfo ci) {
 
+        // Only draw the box when that config style is selected
+        if (JasperBotConfig.glowStyle != JasperBotConfig.GlowStyle.BOUNDING_BOX) return;
+
         JasperBotRenderStateAccessor accessor = (JasperBotRenderStateAccessor) (Object) state;
         java.util.UUID uuid = accessor.jasperbot$getUuid();
         if (uuid == null || !VillagerRolodex.isTargetedOrSearched(uuid)) return;
