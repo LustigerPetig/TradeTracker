@@ -207,7 +207,7 @@ public class RolodexSearchScreen extends Screen {
                     graphics.text(this.font, trade.niceResultName, drawX, drawY + 4, 0xFFFFFF55);
 
                     drawX += 22;
-                    if (1 == 1) {
+                    if (JasperBotConfig.showDistance) {
                         double distance = entry.distance(); // Holt die Distanz aus unserem neuen Record
                         String distanceText = String.format("%.0fm", distance);
                         int textWidth = this.font.width(distanceText);

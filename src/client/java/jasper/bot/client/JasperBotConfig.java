@@ -1,6 +1,8 @@
 package jasper.bot.client;
 
 import net.fabricmc.loader.api.FabricLoader;
+
+import javax.swing.text.StyledEditorKit;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -16,6 +18,8 @@ public class JasperBotConfig {
     public static int glowDurationMs = 10000;
 
     // We tell Fabric to save this exactly in the standard config folder
+
+    public static boolean showDistance = false;
     private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("jasperbot.properties");
 
     public static void load() {
@@ -30,6 +34,8 @@ public class JasperBotConfig {
 
                     // NEW: Read the glow duration, with a safe fallback to 10000 if the property is missing
                     glowDurationMs = Integer.parseInt(props.getProperty("glowDurationMs", "10000"));
+
+                    showDistance = Boolean.parseBoolean(props.getProperty("showDistance", "false"));
                 }
             } else {
                 save(); // If no file exists, create a fresh one!
@@ -48,6 +54,8 @@ public class JasperBotConfig {
 
             // NEW: Write the glow duration to the file
             props.setProperty("glowDurationMs", String.valueOf(glowDurationMs));
+
+            props.setProperty("showDistance", String.valueOf(showDistance));
 
             props.store(out, "Jasper Bot Configuration");
         } catch (Exception e) {
