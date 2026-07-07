@@ -1,4 +1,4 @@
-# JasperBot
+# TradeTracker
 
 ## Setup
 
