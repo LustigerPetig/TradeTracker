@@ -8,9 +8,7 @@
 		"GlBackendMixin",
 		"InteractionMixin",
 		"MultiPlayerGameModeMixin",
-		"TitleScreenMixin",
-		"JasperBotESPMixin",
-		"JasperBotRenderStateMixin"
+		"TitleScreenMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

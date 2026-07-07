@@ -41,6 +41,8 @@ public class JasperBotClient implements ClientModInitializer {
             VillagerRolodex.CACHE.clear();
         });
 
+        JasperBotEspRenderer.register();
+
         // We removed the broken WorldRenderEvents hook from here!
     }
 }
