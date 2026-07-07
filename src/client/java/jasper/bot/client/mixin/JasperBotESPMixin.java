@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
+import jasper.bot.client.render.JasperBotRenderTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
@@ -56,7 +56,7 @@ public abstract class JasperBotESPMixin<T extends Entity, S extends EntityRender
 
         // 4. Submit custom geometry through the collector - the lambda gets the
         //    correct Pose + VertexConsumer at draw time.
-        RenderType type = RenderTypes.lines();
+        RenderType type = JasperBotRenderTypes.JASPERBOT_LINES_NO_DEPTH;
         collector.submitCustomGeometry(poseStack, type, (pose, buffer) -> {
 
             // Neon Green
