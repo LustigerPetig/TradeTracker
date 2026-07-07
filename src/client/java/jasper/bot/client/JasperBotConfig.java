@@ -12,6 +12,8 @@ public class JasperBotConfig {
     // This is our global setting! We default to true.
     public static boolean forceOpenGL = true;
 
+    public static int glowDurationMs = 10000;
+
     // We tell Fabric to save this exactly in the standard config folder
     private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("jasperbot.properties");
 

@@ -78,7 +78,7 @@ public class RolodexSearchScreen extends Screen {
                         if (actualIndex < this.filteredTrades.size()) {
                             UUID target = this.filteredTrades.get(actualIndex).villager().uuid;
                             VillagerRolodex.targetedVillager = target;
-                            VillagerRolodex.glowExpiration = System.currentTimeMillis() + 10000;
+                            VillagerRolodex.glowExpiration = System.currentTimeMillis() + JasperBotConfig.glowDurationMs;;
                             this.onClose();
                         }
                     })
