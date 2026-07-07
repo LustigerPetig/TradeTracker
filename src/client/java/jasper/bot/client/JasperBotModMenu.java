@@ -43,6 +43,13 @@ public class JasperBotModMenu implements ModMenuApi {
                     .setSaveConsumer(newValue -> JasperBotConfig.glowDurationMs = newValue * 1000)
                     .build());
 
+            // Add the Style Selector Dropdown
+            general.addEntry(entryBuilder.startEnumSelector(Component.literal("ESP Render Style"), JasperBotConfig.GlowStyle.class, JasperBotConfig.glowStyle)
+                    .setDefaultValue(JasperBotConfig.GlowStyle.VANILLA)
+                    .setTooltip(Component.literal("Vanilla uses standard outlines. Bounding Box draws a clean X-Ray square through walls."))
+                    .setSaveConsumer(newValue -> JasperBotConfig.glowStyle = newValue)
+                    .build());
+
             general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Show Trade menu Distance"), JasperBotConfig.showDistance)
                     .setDefaultValue(false)
                     .setTooltip(Component.literal("Shows the Distance of the Villager of the Selected Trade"))

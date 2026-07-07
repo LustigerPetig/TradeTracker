@@ -96,27 +96,42 @@ public class VillagerRolodex {
         RolodexStorage.save();
     }
 
-    public static boolean isMatch(UUID villagerId) {
+    public static boolean isTargetedOrSearched(UUID villagerId) {
+        // 1. Check if this villager is manually targeted by a timer
         if (targetedVillager != null) {
             if (System.currentTimeMillis() < glowExpiration) {
-                return villagerId.equals(targetedVillager);
+                if (villagerId.equals(targetedVillager)) {
+                    return true;
+                }
             } else {
-                targetedVillager = null;
+                targetedVillager = null; // Timer expired!
             }
         }
 
+        // 2. If no search query is active, stop checking
         if (searchQuery.isEmpty()) return false;
-
 
         IndexedVillager villager = CACHE.get(villagerId);
         if (villager == null) return false;
 
-        // String query = searchQuery.toLowerCase();
-        // for (TradeInfo trade : villager.trades) {  // <-- Hier greifen wir jetzt über villager.trades zu
-        //    if (trade.resultSearchKey.contains(query)) {
-        //        return true;
-        //    }
-        //}
+        // 3. Check if any of the cached trades match the active search query
+        String query = searchQuery.toLowerCase();
+        for (TradeInfo trade : villager.trades) {
+            if (trade.resultSearchKey.contains(query)) {
+                return true;
+            }
+        }
         return false;
+    }
+
+    public static boolean isMatch(UUID villagerId) {
+        // GATEKEEPER: If the user selected Bounding Box ESP, return false here
+        // so your old Vanilla outline Mixin ignores this villager completely.
+        if (JasperBotConfig.glowStyle != JasperBotConfig.GlowStyle.VANILLA) {
+            return false;
+        }
+
+        // Otherwise, use our core calculation logic
+        return isTargetedOrSearched(villagerId);
     }
 }

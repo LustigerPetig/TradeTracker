@@ -3,12 +3,14 @@
 	"package": "jasper.bot.client.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
+		"AbstractContainerScreenMixin",
 		"EntityGlowMixin",
 		"GlBackendMixin",
 		"InteractionMixin",
-		"AbstractContainerScreenMixin",
+		"MultiPlayerGameModeMixin",
 		"TitleScreenMixin",
-		"MultiPlayerGameModeMixin"
+		"JasperBotESPMixin",
+		"JasperBotRenderStateMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
