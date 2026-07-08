@@ -59,8 +59,8 @@ public class RolodexStorage {
                 villagerTag.putString("VillagerID", villager.uuid.toString());
                 villagerTag.putString("Profession", villager.profession);
                 villagerTag.putInt("Level", villager.level);
-                villagerTag.putInt("ChunkX", villager.chunkX);
-                villagerTag.putInt("ChunkZ", villager.chunkZ);
+                villagerTag.putInt("CordX", villager.cordX);
+                villagerTag.putInt("CordZ", villager.cordZ);
 
                 ListTag tradesList = new ListTag();
                 for (VillagerRolodex.TradeInfo trade : villager.trades) {

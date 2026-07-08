@@ -210,8 +210,8 @@ public class RolodexSearchScreen extends Screen {
             for (VillagerRolodex.IndexedVillager villager : VillagerRolodex.CACHE.values()) {
                 if (!nearbyVillagers.contains(villager.uuid)) continue;
 
-                double villagerX = (villager.chunkX * 16) + 8;
-                double villagerZ = (villager.chunkZ * 16) + 8;
+                double villagerX = villager.cordX;
+                double villagerZ = villager.cordZ;
                 double distance = Math.sqrt(Math.pow(playerX - villagerX, 2) + Math.pow(playerZ - villagerZ, 2));
 
                 List<VillagerRolodex.TradeInfo> matchingTrades = new ArrayList<>();
@@ -248,8 +248,8 @@ public class RolodexSearchScreen extends Screen {
             for (VillagerRolodex.IndexedVillager villager : VillagerRolodex.CACHE.values()) {
                 if (!nearbyVillagers.contains(villager.uuid)) continue;
 
-                double villagerX = (villager.chunkX * 16) + 8;
-                double villagerZ = (villager.chunkZ * 16) + 8;
+                double villagerX = villager.cordX;
+                double villagerZ = villager.cordZ;
                 double distance = Math.sqrt(Math.pow(playerX - villagerX, 2) + Math.pow(playerZ - villagerZ, 2));
 
                 for (VillagerRolodex.TradeInfo trade : villager.trades) {

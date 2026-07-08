@@ -37,18 +37,18 @@ public abstract class AbstractContainerScreenMixin {
                 // 1. Read metadata from Entity
                 String profession = villager.getVillagerData().profession().getRegisteredName();
                 int level = villager.getVillagerData().level();
-                int chunkX = villager.chunkPosition().x();
-                int chunkZ = villager.chunkPosition().z();
+                int cordX = (int) villager.position().x();
+                int cordZ = (int) villager. position().z();
 
-                System.out.println("[Rolodex] Caching " + profession + " (Lvl " + level + ") at Chunk [" + chunkX + ", " + chunkZ + "]. Offers: " + menu.getOffers().size());
+                System.out.println("[Rolodex] Caching " + profession + " (Lvl " + level + ") at  [" + cordX + ", " + cordZ + "]. Offers: " + menu.getOffers().size());
 
 
                 VillagerRolodex.cacheVillager(
                         villager.getUUID(),
                         profession,
                         level,
-                        chunkX,
-                        chunkZ,
+                        cordX,
+                        cordZ,
                         menu.getOffers()
                 );
 
