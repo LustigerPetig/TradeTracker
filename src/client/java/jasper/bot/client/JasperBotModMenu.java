@@ -55,10 +55,20 @@ public class JasperBotModMenu implements ModMenuApi {
                     .setTooltip(Component.literal("Shows the Distance of the Villager of the Selected Trade"))
                     .setSaveConsumer(newValue -> JasperBotConfig.showDistance = newValue)
                     .build());
+            
             general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Show Villager Level"), JasperBotConfig.showLvl)
                     .setDefaultValue(false)
                     .setTooltip(Component.literal("Shows the Level of the Trader next to its role"))
                     .setSaveConsumer(newValue -> JasperBotConfig.showLvl = newValue)
+                    .build());
+
+            general.addEntry(entryBuilder.startIntField(Component.literal("Scroll Speed of Text (ms)"), JasperBotConfig.scrollSpeed)
+                    .setDefaultValue(500)
+                    .setMin(1)
+                    .setMax(60000) // Max 1 min
+                    .setTooltip(Component.literal("How many milliseconds it takes to scroll through the an entire out of bounds text ."))
+                    // Automatically convert back to milliseconds for our internal engine!
+                    .setSaveConsumer(newValue -> JasperBotConfig.scrollSpeed = newValue )
                     .build());
 
             // 6. Build and return the screen to ModMenu!

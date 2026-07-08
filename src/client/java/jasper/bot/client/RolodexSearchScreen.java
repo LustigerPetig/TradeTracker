@@ -362,7 +362,7 @@ public class RolodexSearchScreen extends Screen {
                        int maxScroll = nameTextWidth - maxWidth;
 
 
-                       double wave = (Math.sin(time / 500.0) + 1.0) / 2.0;
+                       double wave = (Math.sin((double) time / JasperBotConfig.scrollSpeed) + 1.0) / 2.0;
                        int scrollOffset = (int) (maxScroll * wave);
 
 
@@ -434,7 +434,7 @@ public class RolodexSearchScreen extends Screen {
                     long time = Util.getMillis();
                     int maxScroll = nameTextWidth - maxWidth;
 
-                    double wave = (Math.sin(time / 500.0) + 1.0) / 2.0;
+                    double wave = (Math.sin((double) time / JasperBotConfig.scrollSpeed) + 1.0) / 2.0;
                     int scrollOffset = (int) (maxScroll * wave);
 
                     graphics.text(this.font, trade.niceResultName, drawX - scrollOffset, drawY + 4, 0xFF55FF55);

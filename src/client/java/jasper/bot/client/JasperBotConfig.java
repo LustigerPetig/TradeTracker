@@ -20,6 +20,8 @@ public class JasperBotConfig {
     public static boolean showDistance = true;
     public static boolean showLvl = false;
 
+    public static int scrollSpeed = 500;
+
     // NEW: Store the current selected style (Defaults to VANILLA)
     public static GlowStyle glowStyle = GlowStyle.VANILLA;
 
@@ -36,6 +38,7 @@ public class JasperBotConfig {
                     glowDurationMs = Integer.parseInt(props.getProperty("glowDurationMs", "10000"));
                     showDistance = Boolean.parseBoolean(props.getProperty("showDistance", "true"));
                     showLvl = Boolean.parseBoolean(props.getProperty("showLvl", "false"));
+                    scrollSpeed = Integer.parseInt(props.getProperty("scrollSpeed","500"));
 
                     // NEW: Safely read the enum value from the config file string
                     try {
@@ -60,6 +63,7 @@ public class JasperBotConfig {
             props.setProperty("glowDurationMs", String.valueOf(glowDurationMs));
             props.setProperty("showDistance", String.valueOf(showDistance));
             props.setProperty("showLvl",String.valueOf(showLvl));
+            props.setProperty("scrollSpeed", String.valueOf(scrollSpeed));
 
             // NEW: Write the selected style enum as a text string to the file
             props.setProperty("glowStyle", glowStyle.name());
