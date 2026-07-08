@@ -304,7 +304,7 @@ public class RolodexSearchScreen extends Screen {
 
         super.extractRenderState(graphics, mouseX, mouseY, delta);
 
-        String titleText = "Villager Rolodex";
+        String titleText = "Trade Tracker";
         graphics.text(this.font, titleText, this.width / 2 - this.font.width(titleText) / 2, 12, ARGB.white(1.0F));
 
         float totalPages = (float) this.listEntries.size() / this.tradesPerPage;
