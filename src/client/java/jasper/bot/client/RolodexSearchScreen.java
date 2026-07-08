@@ -333,6 +333,11 @@ public class RolodexSearchScreen extends Screen {
                 String cleanName = formatProfessionName(entry.villager().profession);
                 graphics.text(this.font, cleanName, drawX, drawY + 4, 0xFFFFD700);
 
+                if(!List.of("armorer", "butcher", "cartographer", "cleric", "farmer", "fisherman", "fletcher", "leatherworker", "librarian", "mason", "shepherd","toolsmith", "weaponsmith", "nitwit", "villager").contains(entry.villager.nameTag.toLowerCase())){
+                   drawX += this.font.width(cleanName) + 5;
+                   graphics.text(this.font,"'" + entry.villager().nameTag + "'", drawX, drawY + 4, ARGB.white(1.0F));
+                }
+
                 if (JasperBotConfig.showDistance) {
                     String distanceText = String.format("%.0fm", entry.distance());
                     int textWidth = this.font.width(distanceText);

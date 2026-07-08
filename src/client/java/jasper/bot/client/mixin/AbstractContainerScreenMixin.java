@@ -36,6 +36,7 @@ public abstract class AbstractContainerScreenMixin {
 
                 // 1. Read metadata from Entity
                 String profession = villager.getVillagerData().profession().getRegisteredName();
+                String nameTag = villager.getName().getString();
                 int level = villager.getVillagerData().level();
                 int cordX = (int) villager.position().x();
                 int cordZ = (int) villager. position().z();
@@ -45,6 +46,7 @@ public abstract class AbstractContainerScreenMixin {
 
                 VillagerRolodex.cacheVillager(
                         villager.getUUID(),
+                        nameTag,
                         profession,
                         level,
                         cordX,

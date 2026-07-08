@@ -36,14 +36,16 @@ public class VillagerRolodex {
 
     public static class IndexedVillager {
         public final UUID uuid;
+        public String nameTag;
         public String profession;
         public int level;
         public int cordX;
         public int cordZ;
         public List<TradeInfo> trades;
 
-        public IndexedVillager(UUID uuid, String profession, int level, int cordX, int cordZ, List<TradeInfo> trades) {
+        public IndexedVillager(UUID uuid,String nameTag, String profession, int level, int cordX, int cordZ, List<TradeInfo> trades) {
             this.uuid = uuid;
+            this.nameTag = nameTag;
             this.profession = profession;
             this.level = level;
             this.cordX = cordX;
@@ -61,7 +63,7 @@ public class VillagerRolodex {
     public static long glowExpiration = 0;
 
 
-    public static void cacheVillager(UUID villagerId, String profession, int level, int cordX, int cordZ, MerchantOffers offers) {
+    public static void cacheVillager(UUID villagerId, String nameTag, String profession, int level, int cordX, int cordZ, MerchantOffers offers) {
         List<TradeInfo> trades = new ArrayList<>();
 
         for (MerchantOffer offer : offers) {
@@ -90,7 +92,7 @@ public class VillagerRolodex {
         }
 
         // Create Villager Object and save to cache
-        IndexedVillager indexedVillager = new IndexedVillager(villagerId, profession, level, cordX, cordZ, trades);
+        IndexedVillager indexedVillager = new IndexedVillager(villagerId, nameTag, profession, level, cordX, cordZ, trades);
         CACHE.put(villagerId, indexedVillager);
 
         RolodexStorage.save();

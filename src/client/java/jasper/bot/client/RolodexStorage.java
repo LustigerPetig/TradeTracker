@@ -57,6 +57,7 @@ public class RolodexStorage {
                 CompoundTag villagerTag = new CompoundTag();
 
                 villagerTag.putString("VillagerID", villager.uuid.toString());
+                villagerTag.putString("Nametag", villager.nameTag);
                 villagerTag.putString("Profession", villager.profession);
                 villagerTag.putInt("Level", villager.level);
                 villagerTag.putInt("CordX", villager.cordX);
@@ -121,7 +122,7 @@ public class RolodexStorage {
                 } catch (IllegalArgumentException e) {
                     continue;
                 }
-
+                String nameTag = villagerTag.getString("Nametag").orElse("Villager");
                 String profession = villagerTag.getString("Profession").orElse("UNKNOWN");
                 int level = villagerTag.getInt("Level").orElse(1);
                 int chunkX = villagerTag.getInt("ChunkX").orElse(0);
@@ -150,7 +151,7 @@ public class RolodexStorage {
                         trades.add(new VillagerRolodex.TradeInfo(costA, localCostA, costB, result, niceName, searchKey));
                     }
                 }
-                VillagerRolodex.IndexedVillager indexedVillager = new VillagerRolodex.IndexedVillager(uuid, profession, level, chunkX, chunkZ, trades);
+                VillagerRolodex.IndexedVillager indexedVillager = new VillagerRolodex.IndexedVillager(uuid, nameTag, profession, level, chunkX, chunkZ, trades);
                 VillagerRolodex.CACHE.put(uuid, indexedVillager);
             }
             LOGGER.info("[Rolodex] Loaded {} villagers for server: {}", VillagerRolodex.CACHE.size(), getServerIdSanitized());
