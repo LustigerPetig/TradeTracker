@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
 public class RolodexSearchScreen extends Screen {
 
     private enum SortMode {
@@ -348,7 +347,15 @@ public class RolodexSearchScreen extends Screen {
                     graphics.item(trade.costA, drawX, drawY);
                     graphics.itemDecorations(this.font, trade.costA, drawX, drawY);
                     drawX += 22;
-                } else {
+                } else if (trade.costA.getCount() == 1) {
+                    graphics.item(trade.costA, drawX, drawY);
+                    graphics.itemDecorations(this.font, trade.costA, drawX, drawY, String.valueOf(trade.costA.getCount()));
+                    graphics.fill(drawX + 7, drawY + 12, drawX + 16, drawY + 13, 0xFFBA370F);
+                    drawX += 20;
+                    graphics.text(this.font, String.valueOf(trade.localCostA.getCount()), drawX, drawY + 9, ARGB.white(1.0f));
+                    drawX += 22;
+
+                }else{
                     graphics.item(trade.costA, drawX, drawY);
                     graphics.itemDecorations(this.font, trade.costA, drawX, drawY);
                     graphics.fill(drawX + 7, drawY + 12, drawX + 16, drawY + 13, 0xFFBA370F);
