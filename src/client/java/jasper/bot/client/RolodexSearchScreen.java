@@ -326,7 +326,8 @@ public class RolodexSearchScreen extends Screen {
 
             int drawX = btn.getX() + 10;
             int drawY = btn.getY() + 4;
-
+            int maxWidth = 0;
+            int  nameTextWidth = 0;
             if (entry.isHeader()) {
                 ItemStack workstation = getWorkstationIcon(entry.villager().profession);
                 graphics.item(workstation, drawX, drawY);
@@ -335,11 +336,11 @@ public class RolodexSearchScreen extends Screen {
                 graphics.text(this.font, cleanName, drawX, drawY + 4, 0xFFFFD700);
                 drawX += this.font.width(cleanName) + 5;
 
-                int maxWidth =btn.getWidth() - (drawX - btn.getX()) - 5;
+                maxWidth =btn.getWidth() - (drawX - btn.getX()) - 5;
 
                 if(!List.of("armorer", "butcher", "cartographer", "cleric", "farmer", "fisherman", "fletcher", "leatherworker", "librarian", "mason", "shepherd","toolsmith", "weaponsmith", "nitwit", "villager").contains(entry.villager.nameTag.toLowerCase())){
 
-                   int  nameTextWidth = this.font.width(entry.villager.nameTag);
+                   nameTextWidth = this.font.width(entry.villager.nameTag);
                    if(!(nameTextWidth> maxWidth)){
                    graphics.text(this.font,"'" + entry.villager().nameTag + "'", drawX, drawY + 4, ARGB.white(1.0F));
                 }else{
@@ -350,11 +351,11 @@ public class RolodexSearchScreen extends Screen {
 
 
                        long time = Util.getMillis();
-                       int maxScroll = nameTextWidth - maxWidth; // Wie viele Pixel stehen über?
+                       int maxScroll = nameTextWidth - maxWidth;
 
 
                        double wave = (Math.sin(time / 500.0) + 1.0) / 2.0;
-                       int scrollOffset = (int) (maxScroll * wave); // Unser dynamischer X-Offset
+                       int scrollOffset = (int) (maxScroll * wave);
 
 
                        graphics.text(this.font, entry.villager().nameTag, drawX - scrollOffset, drawY + 4, ARGB.white(1.0F));
@@ -406,10 +407,32 @@ public class RolodexSearchScreen extends Screen {
                 drawX += 18;
 
                 graphics.item(trade.result, drawX, drawY);
+
+
                 graphics.itemDecorations(this.font, trade.result, drawX, drawY);
                 drawX += 22;
 
-                graphics.text(this.font, trade.niceResultName, drawX, drawY + 4, 0xFF55FF55);
+                maxWidth =btn.getWidth() - (drawX - btn.getX()) - 5;
+                nameTextWidth = this.font.width(trade.niceResultName);
+                if(!(nameTextWidth> maxWidth)){
+                    graphics.text(this.font, trade.niceResultName, drawX, drawY + 4, 0xFF55FF55);
+                }else {
+                    if (!groupByVillager && JasperBotConfig.showDistance) {
+                        maxWidth -= this.font.width(String.format("%.0fm", entry.distance()) + 5);
+                    }
+                    graphics.enableScissor(drawX, drawY - 2, drawX + maxWidth, drawY + 12);
+
+
+                    long time = Util.getMillis();
+                    int maxScroll = nameTextWidth - maxWidth;
+
+                    double wave = (Math.sin(time / 500.0) + 1.0) / 2.0;
+                    int scrollOffset = (int) (maxScroll * wave);
+
+                    graphics.text(this.font, trade.niceResultName, drawX - scrollOffset, drawY + 4, 0xFF55FF55);
+
+                    graphics.disableScissor();
+                }
 
                 if (!groupByVillager && JasperBotConfig.showDistance) {
                     String distanceText = String.format("%.0fm", entry.distance());
