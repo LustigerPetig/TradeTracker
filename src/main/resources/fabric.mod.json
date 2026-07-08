@@ -3,9 +3,9 @@
 	"id": "jasperbot",
 	"version": "${version}",
 	"name": "Trade Tracker",
-	"description": "Diese Mod wurde als Antwort auf Jaspers schwere Cheating-Abhängigkeit entwickelt.",
+	"description": "A mod made to help you find the trades you are looking for!",
 	"authors": [
-		"John Minecraft"
+		"LusterPetig, Shadow_of_Doom03"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",

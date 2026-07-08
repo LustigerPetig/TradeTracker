@@ -7,8 +7,7 @@
 		"EntityGlowMixin",
 		"GlBackendMixin",
 		"InteractionMixin",
-		"MultiPlayerGameModeMixin",
-		"TitleScreenMixin"
+		"MultiPlayerGameModeMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
