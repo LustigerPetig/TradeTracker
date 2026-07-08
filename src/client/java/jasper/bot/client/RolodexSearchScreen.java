@@ -6,8 +6,10 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.input.MouseButtonEvent; // Added the new 26.2 event import
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.util.ARGB;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -74,8 +76,6 @@ public class RolodexSearchScreen extends Screen {
         });
 
         this.addRenderableWidget(this.searchBox);
-
-        // Give the search box the initial typing cursor
         this.setInitialFocus(this.searchBox);
 
         // View toggle aligned cleanly to the left (100px wide)
@@ -134,21 +134,45 @@ public class RolodexSearchScreen extends Screen {
         refreshList();
     }
 
-    // --- FIX: Updated to match 26.2's new MouseButtonEvent API ---
     @Override
     public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
-        // 1. Let Minecraft process the click normally
         boolean handled = super.mouseClicked(click, doubled);
-
-        // 2. If the screen focused a button, instantly strip the focus and return to the search box
         if (this.getFocused() != this.searchBox) {
             if (this.getFocused() instanceof Button clickedButton) {
                 clickedButton.setFocused(false);
             }
             this.setFocused(this.searchBox);
         }
-
         return handled;
+    }
+
+    // --- NEW HELPER: Capitalizes and formats the profession string cleanly ---
+    private String formatProfessionName(String profession) {
+        String key = profession.replace("minecraft:", "");
+        if (key.isEmpty()) return "Unknown";
+        return key.substring(0, 1).toUpperCase() + key.substring(1).replace("_", " ");
+    }
+
+    // --- NEW HELPER: Returns the matching workstation block item ---
+    private ItemStack getWorkstationIcon(String profession) {
+        String key = profession.replace("minecraft:", "").toLowerCase();
+        return switch (key) {
+            case "armorer" -> new ItemStack(Items.BLAST_FURNACE);
+            case "butcher" -> new ItemStack(Items.SMOKER);
+            case "cartographer" -> new ItemStack(Items.CARTOGRAPHY_TABLE);
+            case "cleric" -> new ItemStack(Items.BREWING_STAND);
+            case "farmer" -> new ItemStack(Items.COMPOSTER);
+            case "fisherman" -> new ItemStack(Items.BARREL);
+            case "fletcher" -> new ItemStack(Items.FLETCHING_TABLE);
+            case "leatherworker" -> new ItemStack(Items.CAULDRON);
+            case "librarian" -> new ItemStack(Items.LECTERN);
+            case "mason" -> new ItemStack(Items.STONECUTTER);
+            case "shepherd" -> new ItemStack(Items.LOOM);
+            case "toolsmith" -> new ItemStack(Items.SMITHING_TABLE);
+            case "weaponsmith" -> new ItemStack(Items.GRINDSTONE);
+            case "nitwit", "none" -> new ItemStack(Items.VILLAGER_SPAWN_EGG);
+            default -> new ItemStack(Items.EMERALD); // Fallback for modded villagers
+        };
     }
 
     private void refreshList() {
@@ -240,10 +264,10 @@ public class RolodexSearchScreen extends Screen {
 
                 RowEntry entry = this.listEntries.get(actualIndex);
                 if (groupByVillager && !entry.isHeader()) {
-                    btn.setX(this.width / 2 - 145); // Indent child items
-                    btn.setWidth(310); // Shrink to maintain perfect right-edge alignment
+                    btn.setX(this.width / 2 - 145);
+                    btn.setWidth(310);
                 } else {
-                    btn.setX(this.width / 2 - 165); // Full width for headers/flat items
+                    btn.setX(this.width / 2 - 165);
                     btn.setWidth(330);
                 }
             } else {
@@ -259,21 +283,17 @@ public class RolodexSearchScreen extends Screen {
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
 
-        // 1. Let the parent class handle the standard vanilla background and widgets first
         super.extractRenderState(graphics, mouseX, mouseY, delta);
 
-        // 2. Draw the title at the top
         String titleText = "Villager Rolodex";
         graphics.text(this.font, titleText, this.width / 2 - this.font.width(titleText) / 2, 14, ARGB.white(1.0F));
 
-        // 3. Draw the pagination text at the bottom
         float totalPages = (float) this.listEntries.size() / this.tradesPerPage;
         String pageText = this.listEntries.isEmpty()
                 ? "No cached trades nearby!"
                 : "Page " + (this.scrollOffset + 1) + " / " + (int) Math.ceil(totalPages);
         graphics.text(this.font, pageText, this.width / 2 - this.font.width(pageText) / 2, this.height - 22, ARGB.white(1.0F));
 
-        // 4. Render our custom data (text, items, distances) inside the buttons
         for (int i = 0; i < this.tradesPerPage; i++) {
             Button btn = this.tradeButtons.get(i);
             if (!btn.visible) continue;
@@ -287,8 +307,16 @@ public class RolodexSearchScreen extends Screen {
             int drawY = btn.getY() + 4;
 
             if (entry.isHeader()) {
-                String headerText = "■ " + entry.villager().profession;
-                graphics.text(this.font, headerText, drawX, drawY + 4, 0xFFFFD700);
+                // --- UPDATE: Draw the Workstation Icon and the Cleaned Name ---
+                ItemStack workstation = getWorkstationIcon(entry.villager().profession);
+
+                // Draw the icon
+                graphics.item(workstation, drawX, drawY);
+                drawX += 20; // Shift X to the right of the icon to make room for text
+
+                // Draw the cleanly formatted profession string
+                String cleanName = formatProfessionName(entry.villager().profession);
+                graphics.text(this.font, cleanName, drawX, drawY + 4, 0xFFFFD700);
 
                 if (JasperBotConfig.showDistance) {
                     String distanceText = String.format("%.0fm", entry.distance());
@@ -321,7 +349,6 @@ public class RolodexSearchScreen extends Screen {
                     drawX += 22;
                 }
 
-                // Reverted back to the classic ASCII arrow
                 graphics.text(this.font, "->", drawX, drawY + 4, ARGB.white(1.0F));
                 drawX += 18;
 
