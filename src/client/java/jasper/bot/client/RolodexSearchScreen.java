@@ -44,9 +44,11 @@ public class RolodexSearchScreen extends Screen {
     private Button prevButton;
     private Button sortButton;
     private Button toggleModeButton;
+    private Button filterBookButton; // NEW: Book filter button
 
     private static SortMode sortMode = SortMode.DISTANCE;
     private static boolean groupByVillager = false;
+    private static boolean onlyEnchantedBooks = false; // NEW: Static state memory
 
     private int tradesPerPage = 5;
 
@@ -62,11 +64,12 @@ public class RolodexSearchScreen extends Screen {
 
         this.tradeButtons.clear();
 
-        int usableHeight = this.height - 110;
+        // Adjusted usable height because we added a second row of controls
+        int usableHeight = this.height - 135;
         this.tradesPerPage = Math.max(1, usableHeight / 26);
 
-        // Center perfectly: Search box in middle (120px wide)
-        this.searchBox = new EditBox(this.font, this.width / 2 - 60, 30, 120, 20, Component.literal("Search Trades"));
+        // TOP ROW: Wider Search box centered at Y = 28
+        this.searchBox = new EditBox(this.font, this.width / 2 - 80, 28, 160, 20, Component.literal("Search Trades"));
         this.searchBox.setMaxLength(50);
         this.searchBox.setValue(VillagerRolodex.searchQuery);
         this.searchBox.setResponder(text -> {
@@ -78,22 +81,33 @@ public class RolodexSearchScreen extends Screen {
         this.addRenderableWidget(this.searchBox);
         this.setInitialFocus(this.searchBox);
 
-        // View toggle aligned cleanly to the left (100px wide)
+        // SECOND ROW: Three buttons evenly spaced at Y = 52
+
+        // 1. View toggle (Left)
         this.toggleModeButton = Button.builder(Component.literal(groupByVillager ? "View: Villagers" : "View: Trades"), btn -> {
             groupByVillager = !groupByVillager;
             btn.setMessage(Component.literal(groupByVillager ? "View: Villagers" : "View: Trades"));
             this.scrollOffset = 0;
             refreshList();
-        }).bounds(this.width / 2 - 165, 30, 100, 20).build();
+        }).bounds(this.width / 2 - 165, 52, 100, 20).build();
         this.addRenderableWidget(this.toggleModeButton);
 
-        // Sort toggle aligned cleanly to the right (100px wide)
+        // 2. NEW: Book Filter toggle (Center)
+        this.filterBookButton = Button.builder(Component.literal(onlyEnchantedBooks ? "Filter: Books" : "Filter: All"), btn -> {
+            onlyEnchantedBooks = !onlyEnchantedBooks;
+            btn.setMessage(Component.literal(onlyEnchantedBooks ? "Filter: Books" : "Filter: All"));
+            this.scrollOffset = 0;
+            refreshList();
+        }).bounds(this.width / 2 - 55, 52, 110, 20).build();
+        this.addRenderableWidget(this.filterBookButton);
+
+        // 3. Sort toggle (Right)
         this.sortButton = Button.builder(Component.literal(sortMode.label), btn -> {
             sortMode = sortMode.next();
             btn.setMessage(Component.literal(sortMode.label));
             this.scrollOffset = 0;
             refreshList();
-        }).bounds(this.width / 2 + 65, 30, 100, 20).build();
+        }).bounds(this.width / 2 + 65, 52, 100, 20).build();
         this.addRenderableWidget(this.sortButton);
 
         // Bottom Navigation
@@ -125,7 +139,8 @@ public class RolodexSearchScreen extends Screen {
                             this.onClose();
                         }
                     })
-                    .bounds(this.width / 2 - 165, 60 + (i * 26), 330, 24).build();
+                    // List pushes down to Y = 85 to make room for the new buttons
+                    .bounds(this.width / 2 - 165, 85 + (i * 26), 330, 24).build();
 
             this.tradeButtons.add(btn);
             this.addRenderableWidget(btn);
@@ -146,14 +161,12 @@ public class RolodexSearchScreen extends Screen {
         return handled;
     }
 
-    // --- NEW HELPER: Capitalizes and formats the profession string cleanly ---
     private String formatProfessionName(String profession) {
         String key = profession.replace("minecraft:", "");
         if (key.isEmpty()) return "Unknown";
         return key.substring(0, 1).toUpperCase() + key.substring(1).replace("_", " ");
     }
 
-    // --- NEW HELPER: Returns the matching workstation block item ---
     private ItemStack getWorkstationIcon(String profession) {
         String key = profession.replace("minecraft:", "").toLowerCase();
         return switch (key) {
@@ -171,7 +184,7 @@ public class RolodexSearchScreen extends Screen {
             case "toolsmith" -> new ItemStack(Items.SMITHING_TABLE);
             case "weaponsmith" -> new ItemStack(Items.GRINDSTONE);
             case "nitwit", "none" -> new ItemStack(Items.VILLAGER_SPAWN_EGG);
-            default -> new ItemStack(Items.EMERALD); // Fallback for modded villagers
+            default -> new ItemStack(Items.EMERALD);
         };
     }
 
@@ -204,6 +217,9 @@ public class RolodexSearchScreen extends Screen {
 
                 List<VillagerRolodex.TradeInfo> matchingTrades = new ArrayList<>();
                 for (VillagerRolodex.TradeInfo trade : villager.trades) {
+                    // NEW: If the book filter is on, immediately skip any non-enchanted book result
+                    if (onlyEnchantedBooks && !trade.result.is(Items.ENCHANTED_BOOK)) continue;
+
                     if (query.isEmpty() || trade.resultSearchKey.contains(query)) {
                         matchingTrades.add(trade);
                     }
@@ -238,6 +254,9 @@ public class RolodexSearchScreen extends Screen {
                 double distance = Math.sqrt(Math.pow(playerX - villagerX, 2) + Math.pow(playerZ - villagerZ, 2));
 
                 for (VillagerRolodex.TradeInfo trade : villager.trades) {
+                    // NEW: Same filter check for flat mode
+                    if (onlyEnchantedBooks && !trade.result.is(Items.ENCHANTED_BOOK)) continue;
+
                     if (query.isEmpty() || trade.resultSearchKey.contains(query)) {
                         flatTrades.add(new RowEntry(villager, trade, distance, false));
                     }
@@ -286,7 +305,7 @@ public class RolodexSearchScreen extends Screen {
         super.extractRenderState(graphics, mouseX, mouseY, delta);
 
         String titleText = "Villager Rolodex";
-        graphics.text(this.font, titleText, this.width / 2 - this.font.width(titleText) / 2, 14, ARGB.white(1.0F));
+        graphics.text(this.font, titleText, this.width / 2 - this.font.width(titleText) / 2, 12, ARGB.white(1.0F));
 
         float totalPages = (float) this.listEntries.size() / this.tradesPerPage;
         String pageText = this.listEntries.isEmpty()
@@ -307,14 +326,11 @@ public class RolodexSearchScreen extends Screen {
             int drawY = btn.getY() + 4;
 
             if (entry.isHeader()) {
-                // --- UPDATE: Draw the Workstation Icon and the Cleaned Name ---
                 ItemStack workstation = getWorkstationIcon(entry.villager().profession);
 
-                // Draw the icon
                 graphics.item(workstation, drawX, drawY);
-                drawX += 20; // Shift X to the right of the icon to make room for text
+                drawX += 20;
 
-                // Draw the cleanly formatted profession string
                 String cleanName = formatProfessionName(entry.villager().profession);
                 graphics.text(this.font, cleanName, drawX, drawY + 4, 0xFFFFD700);
 
