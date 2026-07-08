@@ -51,9 +51,14 @@ public class JasperBotModMenu implements ModMenuApi {
                     .build());
 
             general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Show Trade menu Distance"), JasperBotConfig.showDistance)
-                    .setDefaultValue(false)
+                    .setDefaultValue(true)
                     .setTooltip(Component.literal("Shows the Distance of the Villager of the Selected Trade"))
                     .setSaveConsumer(newValue -> JasperBotConfig.showDistance = newValue)
+                    .build());
+            general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Show Villager Level"), JasperBotConfig.showLvl)
+                    .setDefaultValue(false)
+                    .setTooltip(Component.literal("Shows the Level of the Trader next to its role"))
+                    .setSaveConsumer(newValue -> JasperBotConfig.showLvl = newValue)
                     .build());
 
             // 6. Build and return the screen to ModMenu!

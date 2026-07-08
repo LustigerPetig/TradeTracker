@@ -334,7 +334,14 @@ public class RolodexSearchScreen extends Screen {
                 drawX += 20;
                 String cleanName = formatProfessionName(entry.villager().profession);
                 graphics.text(this.font, cleanName, drawX, drawY + 4, 0xFFFFD700);
-                drawX += this.font.width(cleanName) + 5;
+                if (JasperBotConfig.showLvl) {
+                    drawX += this.font.width(cleanName) + 2;
+                    String LvlTxt = "(Lvl " + String.valueOf(entry.villager().level) + "/5)";
+                    graphics.text(this.font, LvlTxt, drawX, drawY + 4, 0xFFFFD700);
+                    drawX += this.font.width(LvlTxt) +5;
+                }else{
+                    drawX += this.font.width(cleanName) + 5;
+                }
 
                 maxWidth =btn.getWidth() - (drawX - btn.getX()) - 5;
 
@@ -348,6 +355,7 @@ public class RolodexSearchScreen extends Screen {
                            maxWidth -= this.font.width(String.format("%.0fm", entry.distance()) + 5);
                        }
                        graphics.enableScissor(drawX, drawY - 2, drawX + maxWidth, drawY + 12);
+
 
 
                        long time = Util.getMillis();

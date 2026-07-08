@@ -17,7 +17,8 @@ public class JasperBotConfig {
 
     public static boolean forceOpenGL = true;
     public static int glowDurationMs = 10000;
-    public static boolean showDistance = false;
+    public static boolean showDistance = true;
+    public static boolean showLvl = false;
 
     // NEW: Store the current selected style (Defaults to VANILLA)
     public static GlowStyle glowStyle = GlowStyle.VANILLA;
@@ -33,7 +34,8 @@ public class JasperBotConfig {
 
                     forceOpenGL = Boolean.parseBoolean(props.getProperty("forceOpenGL", "true"));
                     glowDurationMs = Integer.parseInt(props.getProperty("glowDurationMs", "10000"));
-                    showDistance = Boolean.parseBoolean(props.getProperty("showDistance", "false"));
+                    showDistance = Boolean.parseBoolean(props.getProperty("showDistance", "true"));
+                    showLvl = Boolean.parseBoolean(props.getProperty("showLvl", "false"));
 
                     // NEW: Safely read the enum value from the config file string
                     try {
@@ -57,6 +59,7 @@ public class JasperBotConfig {
             props.setProperty("forceOpenGL", String.valueOf(forceOpenGL));
             props.setProperty("glowDurationMs", String.valueOf(glowDurationMs));
             props.setProperty("showDistance", String.valueOf(showDistance));
+            props.setProperty("showLvl",String.valueOf(showLvl));
 
             // NEW: Write the selected style enum as a text string to the file
             props.setProperty("glowStyle", glowStyle.name());
