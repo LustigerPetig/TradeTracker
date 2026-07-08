@@ -4,19 +4,32 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.ARGB;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
-import java.util.HashSet; // ADDED
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Set; // ADDED
+import java.util.Set;
 import java.util.UUID;
 
 public class RolodexSearchScreen extends Screen {
+
+    private enum SortMode {
+        DISTANCE("Sort: Distance"),
+        NAME("Sort: Name"),
+        PROFESSION("Sort: Profession"),
+        COST("Sort: Cost");
+
+        final String label;
+        SortMode(String label) { this.label = label; }
+        SortMode next() {
+            SortMode[] values = values();
+            return values[(this.ordinal() + 1) % values.length];
+        }
+    }
 
     private record DisplayTrade(VillagerRolodex.IndexedVillager villager, VillagerRolodex.TradeInfo trade, double distance) {}
     private EditBox searchBox;
@@ -24,6 +37,8 @@ public class RolodexSearchScreen extends Screen {
     private int scrollOffset = 0;
     private Button nextButton;
     private Button prevButton;
+    private Button sortButton;
+    private SortMode sortMode = SortMode.DISTANCE;
 
     private int tradesPerPage = 5;
 
@@ -54,6 +69,15 @@ public class RolodexSearchScreen extends Screen {
         this.addRenderableWidget(this.searchBox);
         this.setInitialFocus(this.searchBox);
 
+        // Sort button — sits to the right of the search box
+        this.sortButton = Button.builder(Component.literal(sortMode.label), btn -> {
+            sortMode = sortMode.next();
+            btn.setMessage(Component.literal(sortMode.label));
+            this.scrollOffset = 0;
+            refreshList();
+        }).bounds(this.width / 2 + 105, 15, 100, 20).build();
+        this.addRenderableWidget(this.sortButton);
+
         this.prevButton = Button.builder(Component.literal("<"), btn -> {
             if (this.scrollOffset > 0) {
                 this.scrollOffset--;
@@ -78,7 +102,7 @@ public class RolodexSearchScreen extends Screen {
                         if (actualIndex < this.filteredTrades.size()) {
                             UUID target = this.filteredTrades.get(actualIndex).villager().uuid;
                             VillagerRolodex.targetedVillager = target;
-                            VillagerRolodex.glowExpiration = System.currentTimeMillis() + JasperBotConfig.glowDurationMs;;
+                            VillagerRolodex.glowExpiration = System.currentTimeMillis() + JasperBotConfig.glowDurationMs;
                             this.onClose();
                         }
                     })
@@ -95,7 +119,6 @@ public class RolodexSearchScreen extends Screen {
         this.filteredTrades.clear();
         String query = VillagerRolodex.searchQuery.toLowerCase();
 
-        // 1. Scan client memory for any villager entities that are currently rendering
         Set<UUID> nearbyVillagers = new HashSet<>();
         if (Minecraft.getInstance().level != null) {
             Minecraft.getInstance().level.entitiesForRendering().forEach(entity -> {
@@ -104,21 +127,13 @@ public class RolodexSearchScreen extends Screen {
                 }
             });
         }
+
         Minecraft client = Minecraft.getInstance();
-        double playerX = 0;
-        double playerZ = 0;
-        if (client.player != null) {
-            playerX = client.player.getX();
-            playerZ = client.player.getZ();
-        }
+        double playerX = client.player != null ? client.player.getX() : 0;
+        double playerZ = client.player != null ? client.player.getZ() : 0;
 
-        // 2. Filter your structural database by checking if the villager's UUID is in render distance
         for (VillagerRolodex.IndexedVillager villager : VillagerRolodex.CACHE.values()) {
-
-            // NEW: Skip this villager's trades completely if they aren't loaded around the player
-            if (!nearbyVillagers.contains(villager.uuid)) {
-                continue;
-            }
+            if (!nearbyVillagers.contains(villager.uuid)) continue;
 
             double villagerX = (villager.chunkX * 16) + 8;
             double villagerZ = (villager.chunkZ * 16) + 8;
@@ -131,17 +146,19 @@ public class RolodexSearchScreen extends Screen {
             }
         }
 
+        // Sort according to selected mode
+        switch (sortMode) {
+            case DISTANCE  -> this.filteredTrades.sort(Comparator.comparingDouble(DisplayTrade::distance));
+            case NAME      -> this.filteredTrades.sort(Comparator.comparing(t -> t.trade().niceResultName.toLowerCase()));
+            case PROFESSION -> this.filteredTrades.sort(Comparator.comparing(t -> t.villager().profession.toLowerCase()));
+            case COST      -> this.filteredTrades.sort(Comparator.comparingInt(t -> t.trade().localCostA.getCount()));
+        }
+
         for (int i = 0; i < this.tradesPerPage; i++) {
             int actualIndex = (this.scrollOffset * this.tradesPerPage) + i;
             Button btn = this.tradeButtons.get(i);
-
-            if (actualIndex < this.filteredTrades.size()) {
-                btn.active = true;
-                btn.visible = true;
-            } else {
-                btn.active = false;
-                btn.visible = false;
-            }
+            btn.active = actualIndex < this.filteredTrades.size();
+            btn.visible = actualIndex < this.filteredTrades.size();
         }
 
         this.prevButton.active = this.scrollOffset > 0;
@@ -153,68 +170,59 @@ public class RolodexSearchScreen extends Screen {
         super.extractRenderState(graphics, mouseX, mouseY, delta);
 
         float totalPages = (float) this.filteredTrades.size() / this.tradesPerPage;
-
-        String pageText = "Page " + (this.scrollOffset + 1) + " / " + (int) Math.ceil(totalPages);
-        // CHANGED: Informative message updating the context to nearby matches
-        if (this.filteredTrades.isEmpty()) pageText = "No cached trades nearby!";
+        String pageText = this.filteredTrades.isEmpty()
+                ? "No cached trades nearby!"
+                : "Page " + (this.scrollOffset + 1) + " / " + (int) Math.ceil(totalPages);
         graphics.text(this.font, pageText, this.width / 2 - this.font.width(pageText) / 2, this.height - 25, ARGB.white(1.0F));
 
         for (int i = 0; i < this.tradesPerPage; i++) {
             Button btn = this.tradeButtons.get(i);
-            if (btn.visible) {
-                int actualIndex = (this.scrollOffset * this.tradesPerPage) + i;
-                if (actualIndex < this.filteredTrades.size()) {
-                    DisplayTrade entry = this.filteredTrades.get(actualIndex);
-                    VillagerRolodex.TradeInfo trade = entry.trade();
+            if (!btn.visible) continue;
 
-                    int drawX = btn.getX() + 10;
-                    int drawY = btn.getY() + 4;
+            int actualIndex = (this.scrollOffset * this.tradesPerPage) + i;
+            if (actualIndex >= this.filteredTrades.size()) continue;
 
-                    if (trade.costA.getCount() == trade.localCostA.getCount()) {
-                        graphics.item(trade.costA, drawX, drawY);
-                        graphics.itemDecorations(this.font, trade.costA, drawX, drawY);
-                        drawX += 22;
+            DisplayTrade entry = this.filteredTrades.get(actualIndex);
+            VillagerRolodex.TradeInfo trade = entry.trade();
 
-                    } else{
-                        // 1. Wir zeichnen das ALTE Item (den Originalpreis)
-                        graphics.item(trade.costA, drawX, drawY);
-                        graphics.itemDecorations(this.font, trade.costA, drawX, drawY);
+            int drawX = btn.getX() + 10;
+            int drawY = btn.getY() + 4;
 
-                        graphics.fill(drawX +7, drawY + 12, drawX + 16, drawY + 13, 0xFFBA370F);
+            if (trade.costA.getCount() == trade.localCostA.getCount()) {
+                graphics.item(trade.costA, drawX, drawY);
+                graphics.itemDecorations(this.font, trade.costA, drawX, drawY);
+                drawX += 22;
+            } else {
+                graphics.item(trade.costA, drawX, drawY);
+                graphics.itemDecorations(this.font, trade.costA, drawX, drawY);
+                graphics.fill(drawX + 7, drawY + 12, drawX + 16, drawY + 13, 0xFFBA370F);
+                drawX += 20;
+                graphics.text(this.font, String.valueOf(trade.localCostA.getCount()), drawX, drawY + 9, ARGB.white(1.0f));
+                drawX += 22;
+            }
 
-                        drawX += 20;
+            if (!trade.costB.isEmpty()) {
+                graphics.text(this.font, "+", drawX, drawY + 4, 0xFFAAAAAA);
+                drawX += 12;
+                graphics.item(trade.costB, drawX, drawY);
+                graphics.itemDecorations(this.font, trade.costB, drawX, drawY);
+                drawX += 22;
+            }
 
-                        graphics.text(this.font, String.valueOf(trade.localCostA.getCount()), drawX, drawY + 9, ARGB.white(1.0f));
+            graphics.text(this.font, "->", drawX, drawY + 4, ARGB.white(1.0F));
+            drawX += 18;
 
-                        drawX += 22;
-                    }
+            graphics.item(trade.result, drawX, drawY);
+            graphics.itemDecorations(this.font, trade.result, drawX, drawY);
+            drawX += 22;
 
-                    if (!trade.costB.isEmpty()) {
-                        graphics.text(this.font, "+", drawX, drawY + 4, 0xFFAAAAAA);
-                        drawX += 12;
-                        graphics.item(trade.costB, drawX, drawY);
-                        graphics.itemDecorations(this.font, trade.costB, drawX, drawY);
-                        drawX += 22;
-                    }
+            graphics.text(this.font, trade.niceResultName, drawX, drawY + 4, 0xFFFFFF55);
 
-                    graphics.text(this.font, "->", drawX, drawY + 4, ARGB.white(1.0F));
-                    drawX += 18;
-
-                    graphics.item(trade.result, drawX, drawY);
-                    graphics.itemDecorations(this.font, trade.result, drawX, drawY);
-                    drawX += 22;
-
-                    graphics.text(this.font, trade.niceResultName, drawX, drawY + 4, 0xFFFFFF55);
-
-                    drawX += 22;
-                    if (JasperBotConfig.showDistance) {
-                        double distance = entry.distance(); // Holt die Distanz aus unserem neuen Record
-                        String distanceText = String.format("%.0fm", distance);
-                        int textWidth = this.font.width(distanceText);
-                        int rightAlignedX = btn.getX() + btn.getWidth() - textWidth - 5;
-                        graphics.text(this.font, distanceText, rightAlignedX, drawY + 4, ARGB.white(1.0F));
-                    }
-                }
+            if (JasperBotConfig.showDistance) {
+                String distanceText = String.format("%.0fm", entry.distance());
+                int textWidth = this.font.width(distanceText);
+                int rightAlignedX = btn.getX() + btn.getWidth() - textWidth - 5;
+                graphics.text(this.font, distanceText, rightAlignedX, drawY + 4, ARGB.white(1.0F));
             }
         }
     }
