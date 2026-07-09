@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
 public class RolodexSearchScreen extends Screen {
 
     private enum SortMode {
@@ -42,8 +43,10 @@ public class RolodexSearchScreen extends Screen {
     private int scrollOffset = 0;
     private Button nextButton;
     private Button prevButton;
+
     private Button sortButton;
     private Button toggleModeButton;
+
     private Button filterBookButton;
 
     private static SortMode sortMode = SortMode.DISTANCE;
@@ -128,8 +131,7 @@ public class RolodexSearchScreen extends Screen {
             Button btn = Button.builder(Component.empty(), b -> {
                         int actualIndex = (this.scrollOffset * this.tradesPerPage) + index;
                         if (actualIndex < this.listEntries.size()) {
-                            UUID target = this.listEntries.get(actualIndex).villager().uuid;
-                            VillagerRolodex.targetedVillager = target;
+                            VillagerRolodex.targetedVillager = this.listEntries.get(actualIndex).villager().uuid;
                             VillagerRolodex.glowExpiration = System.currentTimeMillis() + JasperBotConfig.glowDurationMs;
                             this.onClose();
                         }
@@ -225,9 +227,9 @@ public class RolodexSearchScreen extends Screen {
 
             switch (sortMode) {
                 case DISTANCE  -> groups.sort(Comparator.comparingDouble(g -> g.distance));
-                case NAME      -> groups.sort(Comparator.comparing(g -> g.trades.get(0).niceResultName.toLowerCase()));
+                case NAME      -> groups.sort(Comparator.comparing(g -> g.trades.getFirst().niceResultName.toLowerCase()));
                 case PROFESSION -> groups.sort(Comparator.comparing(g -> g.villager.profession.toLowerCase()));
-                case COST      -> groups.sort(Comparator.comparingInt(g -> g.trades.get(0).localCostA.getCount()));
+                case COST      -> groups.sort(Comparator.comparingInt(g -> g.trades.getFirst().localCostA.getCount()));
             }
 
             for (VillagerGroup group : groups) {
@@ -326,7 +328,7 @@ public class RolodexSearchScreen extends Screen {
                 graphics.text(this.font, cleanName, drawX, drawY + 4, 0xFFFFD700);
                 if (JasperBotConfig.showLvl) {
                     drawX += this.font.width(cleanName) + 2;
-                    String LvlTxt = "(Lvl " + String.valueOf(entry.villager().level) + "/5)";
+                    String LvlTxt = "(Lvl " + entry.villager().level + "/5)";
                     graphics.text(this.font, LvlTxt, drawX, drawY + 4, 0xFFFFD700);
                     drawX += this.font.width(LvlTxt) +5;
                 }else{

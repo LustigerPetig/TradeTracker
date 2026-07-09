@@ -18,11 +18,14 @@ public class JasperBotClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+
+        JasperBotConfig.load();
+
         searchKeyBinding = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.jasperbot.search",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_R,
-                this.JASPERBOT_CATEGORY
+                JASPERBOT_CATEGORY
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {

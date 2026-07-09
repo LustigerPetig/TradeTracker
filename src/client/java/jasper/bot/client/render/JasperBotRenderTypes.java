@@ -13,7 +13,7 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 public final class JasperBotRenderTypes {
 
     private static final RenderPipeline JASPERBOT_LINES_NO_DEPTH_PIPELINE =
-            RenderPipeline.builder(new RenderPipeline.Snippet[]{ RenderPipelines.LINES_SNIPPET })
+            RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
                     .withLocation("jasperbot_lines_no_depth")
                     .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
                     .build();
