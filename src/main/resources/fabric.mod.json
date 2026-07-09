@@ -1,6 +1,6 @@
 {
 	"schemaVersion": 1,
-	"id": "jasperbot",
+	"id": "tradetracker",
 	"version": "${version}",
 	"name": "Trade Tracker",
 	"description": "A mod made to help you find the trades you are looking for!",
@@ -12,35 +12,35 @@
 		"sources": "https://github.com/LustigerPetig/JasperBot"
 	},
 	"license": "CC0-1.0",
-	"icon": "assets/jasperbot/icon.png",
+	"icon": "assets/tradetracker/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
 			{
-				"value": "jasper.bot.JasperBot",
+				"value": "trade.tracker.TradeTracker",
 				"adapter": "kotlin"
 			}
 		],
 		"client": [
 			{
-				"value": "jasper.bot.client.TradeTrackerClient",
+				"value": "trade.tracker.client.TradeTrackerClient",
 				"adapter": "kotlin"
 			}
 		],
 		"modmenu": [
-			"jasper.bot.client.TradeTrackerModMenu"
+			"trade.tracker.client.TradeTrackerModMenu"
 		],
 		"fabric-datagen": [
 			{
-				"value": "jasper.bot.client.JasperBotDataGenerator",
+				"value": "trade.tracker.client.TradeTrackerDataGenerator",
 				"adapter": "kotlin"
 			}
 		]
 	},
 	"mixins": [
-		"jasperbot.mixins.json",
+		"tradetracker.json",
 		{
-			"config": "jasperbot.client.mixins.json",
+			"config": "tradetracker.client.mixins.json",
 			"environment": "client"
 		}
 	],
