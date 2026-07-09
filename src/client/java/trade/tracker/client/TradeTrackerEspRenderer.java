@@ -51,7 +51,12 @@ public class TradeTrackerEspRenderer {
 
         poseStack.pushPose();
         collector.submitCustomGeometry(poseStack, type, (pose, buffer) -> {
-            int r = 0, g = 255, b = 0, a = 255;
+            int combinedColor = TradeTrackerConfig.glowColor;
+
+            int r = (combinedColor >> 16) & 0xFF;
+            int g = (combinedColor >> 8) & 0xFF;
+            int b = combinedColor & 0xFF;
+            int a = (combinedColor >> 24) & 0xFF;
 
             // Bottom square
             jasperbot$drawLine(buffer, pose, minX, minY, minZ, maxX, minY, minZ, r, g, b, a);

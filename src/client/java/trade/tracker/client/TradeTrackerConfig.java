@@ -19,11 +19,9 @@ public class TradeTrackerConfig {
     public static boolean doLiveDistance = true;
     public static boolean doLiveSorting = false;
     public static boolean showLvl = false;
-
     public static int scrollSpeed = 500;
-
     public static GlowStyle glowStyle = GlowStyle.VANILLA;
-
+    public static int glowColor = 0xFF00FF00;
     private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("tradetracker.properties");
 
     public static void load() {
@@ -45,6 +43,7 @@ public class TradeTrackerConfig {
                     } catch (IllegalArgumentException e) {
                         glowStyle = GlowStyle.VANILLA;
                     }
+                    glowColor = Integer.parseInt(props.getProperty("glowColor", "0xFF00FF00"));
                 }
             } else {
                 save();
@@ -65,6 +64,7 @@ public class TradeTrackerConfig {
             props.setProperty("showLvl",String.valueOf(showLvl));
             props.setProperty("scrollSpeed", String.valueOf(scrollSpeed));
             props.setProperty("glowStyle", glowStyle.name());
+            props.setProperty("glowColor", String.valueOf(glowColor));
 
             props.store(out, "Jasper Bot Configuration");
         } catch (Exception e) {
