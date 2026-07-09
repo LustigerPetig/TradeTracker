@@ -59,27 +59,27 @@ public class TradeTrackerEspRenderer {
             int a = (combinedColor >> 24) & 0xFF;
 
             // Bottom square
-            jasperbot$drawLine(buffer, pose, minX, minY, minZ, maxX, minY, minZ, r, g, b, a);
-            jasperbot$drawLine(buffer, pose, maxX, minY, minZ, maxX, minY, maxZ, r, g, b, a);
-            jasperbot$drawLine(buffer, pose, maxX, minY, maxZ, minX, minY, maxZ, r, g, b, a);
-            jasperbot$drawLine(buffer, pose, minX, minY, maxZ, minX, minY, minZ, r, g, b, a);
+            tradetracker$drawLine(buffer, pose, minX, minY, minZ, maxX, minY, minZ, r, g, b, a);
+            tradetracker$drawLine(buffer, pose, maxX, minY, minZ, maxX, minY, maxZ, r, g, b, a);
+            tradetracker$drawLine(buffer, pose, maxX, minY, maxZ, minX, minY, maxZ, r, g, b, a);
+            tradetracker$drawLine(buffer, pose, minX, minY, maxZ, minX, minY, minZ, r, g, b, a);
 
             // Top square
-            jasperbot$drawLine(buffer, pose, minX, maxY, minZ, maxX, maxY, minZ, r, g, b, a);
-            jasperbot$drawLine(buffer, pose, maxX, maxY, minZ, maxX, maxY, maxZ, r, g, b, a);
-            jasperbot$drawLine(buffer, pose, maxX, maxY, maxZ, minX, maxY, maxZ, r, g, b, a);
-            jasperbot$drawLine(buffer, pose, minX, maxY, maxZ, minX, maxY, minZ, r, g, b, a);
+            tradetracker$drawLine(buffer, pose, minX, maxY, minZ, maxX, maxY, minZ, r, g, b, a);
+            tradetracker$drawLine(buffer, pose, maxX, maxY, minZ, maxX, maxY, maxZ, r, g, b, a);
+            tradetracker$drawLine(buffer, pose, maxX, maxY, maxZ, minX, maxY, maxZ, r, g, b, a);
+            tradetracker$drawLine(buffer, pose, minX, maxY, maxZ, minX, maxY, minZ, r, g, b, a);
 
             // Vertical pillars
-            jasperbot$drawLine(buffer, pose, minX, minY, minZ, minX, maxY, minZ, r, g, b, a);
-            jasperbot$drawLine(buffer, pose, maxX, minY, minZ, maxX, maxY, minZ, r, g, b, a);
-            jasperbot$drawLine(buffer, pose, maxX, minY, maxZ, maxX, maxY, maxZ, r, g, b, a);
-            jasperbot$drawLine(buffer, pose, minX, minY, maxZ, minX, maxY, maxZ, r, g, b, a);
+            tradetracker$drawLine(buffer, pose, minX, minY, minZ, minX, maxY, minZ, r, g, b, a);
+            tradetracker$drawLine(buffer, pose, maxX, minY, minZ, maxX, maxY, minZ, r, g, b, a);
+            tradetracker$drawLine(buffer, pose, maxX, minY, maxZ, maxX, maxY, maxZ, r, g, b, a);
+            tradetracker$drawLine(buffer, pose, minX, minY, maxZ, minX, maxY, maxZ, r, g, b, a);
         });
         poseStack.popPose();
     }
 
-    private static void jasperbot$drawLine(VertexConsumer buffer, PoseStack.Pose pose, double x1, double y1, double z1, double x2, double y2, double z2, int r, int g, int b, int a) {
+    private static void tradetracker$drawLine(VertexConsumer buffer, PoseStack.Pose pose, double x1, double y1, double z1, double x2, double y2, double z2, int r, int g, int b, int a) {
         float nx = (float) (x2 - x1);
         float ny = (float) (y2 - y1);
         float nz = (float) (z2 - z1);
