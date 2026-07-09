@@ -14,9 +14,7 @@ import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 public class RolodexSearchScreen extends Screen {
@@ -54,6 +52,8 @@ public class RolodexSearchScreen extends Screen {
     private static boolean onlyEnchantedBooks = false;
 
     private int tradesPerPage = 5;
+
+    private final java.util.Map<UUID, Float> liveDistances = new java.util.HashMap<>();
 
 
 
@@ -157,6 +157,29 @@ public class RolodexSearchScreen extends Screen {
         return handled;
     }
 
+    @Override
+    public void tick(){
+        super.tick();
+        updateLiveDistances();
+    }
+    private void updateLiveDistances(){
+        Minecraft client = Minecraft.getInstance();
+        if (client.level != null && client.player != null) {
+            // Delete old Distance
+            this.liveDistances.clear();
+
+            // Rescan
+            net.minecraft.world.phys.AABB searchBox = client.player.getBoundingBox().inflate(128.0);
+            List<net.minecraft.world.entity.npc.villager.Villager> loadedVillagers =
+                    client.level.getEntitiesOfClass(net.minecraft.world.entity.npc.villager.Villager.class, searchBox);
+
+            for (net.minecraft.world.entity.npc.villager.Villager entity : loadedVillagers) {
+                float exactDistance = client.player.distanceTo(entity);
+                this.liveDistances.put(entity.getUUID(), exactDistance);
+            }
+        }
+    }
+
     private String formatProfessionName(String profession) {
         String key = profession.replace("minecraft:", "");
         if (key.isEmpty()) return "Unknown";
@@ -186,40 +209,21 @@ public class RolodexSearchScreen extends Screen {
     private void refreshList() {
         this.listEntries.clear();
         String query = VillagerRolodex.searchQuery.toLowerCase();
+        updateLiveDistances();
 
-        Minecraft client = Minecraft.getInstance();
-
-        // 1. NEU: Map für UUIDs UND die exakte Distanz aufbauen
-        java.util.Map<UUID, Float> nearbyDistances = new java.util.HashMap<>();
-
-        if (client.level != null && client.player != null) {
-            // Suchbox um den Spieler (Radius 128 Blöcke)
-            net.minecraft.world.phys.AABB searchBox = client.player.getBoundingBox().inflate(128.0);
-
-            // Alle geladenen Villager in dieser Box abfragen
-            List<net.minecraft.world.entity.npc.villager.Villager> loadedVillagers =
-                    client.level.getEntitiesOfClass(net.minecraft.world.entity.npc.villager.Villager.class, searchBox);
-
-            for (net.minecraft.world.entity.npc.villager.Villager entity : loadedVillagers) {
-                // Exakte Distanz berechnen und in die Map speichern
-                float exactDistance = client.player.distanceTo(entity);
-                nearbyDistances.put(entity.getUUID(), exactDistance);
-            }
-        }
 
         if (groupByVillager) {
             List<VillagerGroup> groups = new ArrayList<>();
 
             for (VillagerRolodex.IndexedVillager villager : VillagerRolodex.CACHE.values()) {
-                // Checken, ob die UUID in unserer neuen Map ist
-                if (!nearbyDistances.containsKey(villager.uuid)) continue;
 
-                // NEU: Statt Mathe holen wir uns einfach die fertige Zahl aus der Map
-                double distance = nearbyDistances.get(villager.uuid);
+                if (!liveDistances.containsKey(villager.uuid)) continue;
+
+                double distance = liveDistances.get(villager.uuid);
 
                 List<VillagerRolodex.TradeInfo> matchingTrades = new ArrayList<>();
                 for (VillagerRolodex.TradeInfo trade : villager.trades) {
-                    if (onlyEnchantedBooks && !trade.result.is(net.minecraft.world.item.Items.ENCHANTED_BOOK)) continue;
+                    if (onlyEnchantedBooks && !trade.result.is(Items.ENCHANTED_BOOK)) continue;
 
                     if (query.isEmpty() || trade.resultSearchKey.contains(query)) {
                         matchingTrades.add(trade);
@@ -249,13 +253,13 @@ public class RolodexSearchScreen extends Screen {
             List<RowEntry> flatTrades = new ArrayList<>();
             for (VillagerRolodex.IndexedVillager villager : VillagerRolodex.CACHE.values()) {
                 // Checken, ob die UUID in unserer neuen Map ist
-                if (!nearbyDistances.containsKey(villager.uuid)) continue;
+                if (!liveDistances.containsKey(villager.uuid)) continue;
 
                 // NEU: Distanz direkt aus der Map lesen
-                double distance = nearbyDistances.get(villager.uuid);
+                double distance = liveDistances.get(villager.uuid);
 
                 for (VillagerRolodex.TradeInfo trade : villager.trades) {
-                    if (onlyEnchantedBooks && !trade.result.is(net.minecraft.world.item.Items.ENCHANTED_BOOK)) continue;
+                    if (onlyEnchantedBooks && !trade.result.is(Items.ENCHANTED_BOOK)) continue;
 
                     if (query.isEmpty() || trade.resultSearchKey.contains(query)) {
                         flatTrades.add(new RowEntry(villager, trade, distance, false));
@@ -327,6 +331,10 @@ public class RolodexSearchScreen extends Screen {
             int drawY = btn.getY() + 4;
             int maxWidth = 0;
             int  nameTextWidth = 0;
+
+            double liveDistance = this.liveDistances.getOrDefault(entry.villager.uuid, (float) entry.distance());
+            String distanceText = String.format("%.0fm", liveDistance);
+
             if (entry.isHeader()) {
                 ItemStack workstation = getWorkstationIcon(entry.villager().profession);
                 graphics.item(workstation, drawX, drawY);
@@ -351,7 +359,7 @@ public class RolodexSearchScreen extends Screen {
                    graphics.text(this.font,"'" + entry.villager().nameTag + "'", drawX, drawY + 4, ARGB.white(1.0F));
                 }else{
                        if(JasperBotConfig.showDistance){
-                           maxWidth -= this.font.width(String.format("%.0fm", entry.distance()) + 5);
+                           maxWidth -= this.font.width(distanceText) + 5;
                        }
                        graphics.enableScissor(drawX, drawY - 2, drawX + maxWidth, drawY + 12);
 
@@ -372,7 +380,6 @@ public class RolodexSearchScreen extends Screen {
                 }
 
                 if (JasperBotConfig.showDistance) {
-                    String distanceText = String.format("%.0fm", entry.distance());
                     int textWidth = this.font.width(distanceText);
                     int rightAlignedX = btn.getX() + btn.getWidth() - textWidth - 5;
                     graphics.text(this.font, distanceText, rightAlignedX, drawY + 4, ARGB.white(1.0F));
@@ -425,7 +432,7 @@ public class RolodexSearchScreen extends Screen {
                     graphics.text(this.font, trade.niceResultName, drawX, drawY + 4, 0xFF55FF55);
                 }else {
                     if (!groupByVillager && JasperBotConfig.showDistance) {
-                        maxWidth -= this.font.width(String.format("%.0fm", entry.distance()) + 5);
+                        maxWidth -= this.font.width(distanceText) + 5;
                     }
                     graphics.enableScissor(drawX, drawY - 2, drawX + maxWidth, drawY + 12);
 
@@ -442,7 +449,6 @@ public class RolodexSearchScreen extends Screen {
                 }
 
                 if (!groupByVillager && JasperBotConfig.showDistance) {
-                    String distanceText = String.format("%.0fm", entry.distance());
                     int textWidth = this.font.width(distanceText);
                     int rightAlignedX = btn.getX() + btn.getWidth() - textWidth - 5;
                     graphics.text(this.font, distanceText, rightAlignedX, drawY + 4, ARGB.white(1.0F));
