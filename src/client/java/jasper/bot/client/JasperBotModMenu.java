@@ -48,6 +48,11 @@ public class JasperBotModMenu implements ModMenuApi {
                     .setTooltip(Component.literal("Shows the Distance of the Villager of the Selected Trade"))
                     .setSaveConsumer(newValue -> JasperBotConfig.showDistance = newValue)
                     .build());
+            general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Do live updates of Distances"), JasperBotConfig.doLiveDistance)
+                    .setDefaultValue(true)
+                    .setTooltip(Component.literal("Does live updates of distance values while the Menu is open"))
+                    .setSaveConsumer(newValue -> JasperBotConfig.doLiveDistance = newValue)
+                    .build());
             
             general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Show Villager Level"), JasperBotConfig.showLvl)
                     .setDefaultValue(false)

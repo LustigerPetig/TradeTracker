@@ -16,6 +16,8 @@ public class JasperBotConfig {
 
     public static int glowDurationMs = 10000;
     public static boolean showDistance = true;
+
+    public static boolean doLiveDistance = true;
     public static boolean showLvl = false;
 
     public static int scrollSpeed = 500;
@@ -33,6 +35,7 @@ public class JasperBotConfig {
 
                     glowDurationMs = Integer.parseInt(props.getProperty("glowDurationMs", "10000"));
                     showDistance = Boolean.parseBoolean(props.getProperty("showDistance", "true"));
+                    doLiveDistance = Boolean.parseBoolean(props.getProperty("doLiveDistance", "true"));
                     showLvl = Boolean.parseBoolean(props.getProperty("showLvl", "false"));
                     scrollSpeed = Integer.parseInt(props.getProperty("scrollSpeed","500"));
 
@@ -56,6 +59,7 @@ public class JasperBotConfig {
 
             props.setProperty("glowDurationMs", String.valueOf(glowDurationMs));
             props.setProperty("showDistance", String.valueOf(showDistance));
+            props.setProperty("doLiveDistance", String.valueOf(doLiveDistance));
             props.setProperty("showLvl",String.valueOf(showLvl));
             props.setProperty("scrollSpeed", String.valueOf(scrollSpeed));
 

@@ -9,13 +9,12 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Util;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.AABB;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class RolodexSearchScreen extends Screen {
 
@@ -53,7 +52,7 @@ public class RolodexSearchScreen extends Screen {
 
     private int tradesPerPage = 5;
 
-    private final java.util.Map<UUID, Float> liveDistances = new java.util.HashMap<>();
+    private final Map<UUID, Float> liveDistances = new HashMap<>();
 
 
 
@@ -169,11 +168,11 @@ public class RolodexSearchScreen extends Screen {
             this.liveDistances.clear();
 
             // Rescan
-            net.minecraft.world.phys.AABB searchBox = client.player.getBoundingBox().inflate(128.0);
-            List<net.minecraft.world.entity.npc.villager.Villager> loadedVillagers =
-                    client.level.getEntitiesOfClass(net.minecraft.world.entity.npc.villager.Villager.class, searchBox);
+            AABB searchBox = client.player.getBoundingBox().inflate(128.0);
+            List<Villager> loadedVillagers =
+                    client.level.getEntitiesOfClass(Villager.class, searchBox);
 
-            for (net.minecraft.world.entity.npc.villager.Villager entity : loadedVillagers) {
+            for (Villager entity : loadedVillagers) {
                 float exactDistance = client.player.distanceTo(entity);
                 this.liveDistances.put(entity.getUUID(), exactDistance);
             }
@@ -329,10 +328,14 @@ public class RolodexSearchScreen extends Screen {
 
             int drawX = btn.getX() + 10;
             int drawY = btn.getY() + 4;
-            int maxWidth = 0;
-            int  nameTextWidth = 0;
-
-            double liveDistance = this.liveDistances.getOrDefault(entry.villager.uuid, (float) entry.distance());
+            int maxWidth;
+            int  nameTextWidth;
+            double liveDistance;
+            if(JasperBotConfig.doLiveDistance) {
+                liveDistance = this.liveDistances.getOrDefault(entry.villager.uuid, (float) entry.distance());
+            }else{
+                liveDistance = (float) entry.distance();
+            }
             String distanceText = String.format("%.0fm", liveDistance);
 
             if (entry.isHeader()) {
@@ -461,7 +464,7 @@ public class RolodexSearchScreen extends Screen {
     public void onClose() {
         if (Minecraft.getInstance().level != null) {
             Minecraft.getInstance().level.entitiesForRendering().forEach(entity -> {
-                if (entity instanceof net.minecraft.world.entity.npc.villager.Villager) {
+                if (entity instanceof Villager) {
                     entity.refreshDimensions();
                 }
             });
