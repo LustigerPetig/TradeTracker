@@ -11,7 +11,7 @@
 		"homepage": "https://fabricmc.net/",
 		"sources": "https://github.com/LustigerPetig/JasperBot"
 	},
-	"license": "CC0-1.0",
+	"license": "GNU GPL-3.0",
 	"icon": "assets/tradetracker/icon.png",
 	"environment": "*",
 	"entrypoints": {
