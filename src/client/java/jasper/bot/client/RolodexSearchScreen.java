@@ -183,37 +183,43 @@ public class RolodexSearchScreen extends Screen {
             default -> new ItemStack(Items.EMERALD);
         };
     }
-
     private void refreshList() {
         this.listEntries.clear();
         String query = VillagerRolodex.searchQuery.toLowerCase();
 
-        Set<UUID> nearbyVillagers = new HashSet<>();
-        if (Minecraft.getInstance().level != null) {
-            Minecraft.getInstance().level.entitiesForRendering().forEach(entity -> {
-                if (entity instanceof net.minecraft.world.entity.npc.villager.Villager) {
-                    nearbyVillagers.add(entity.getUUID());
-                }
-            });
-        }
-
         Minecraft client = Minecraft.getInstance();
-        double playerX = client.player != null ? client.player.getX() : 0;
-        double playerZ = client.player != null ? client.player.getZ() : 0;
+
+        // 1. NEU: Map für UUIDs UND die exakte Distanz aufbauen
+        java.util.Map<UUID, Float> nearbyDistances = new java.util.HashMap<>();
+
+        if (client.level != null && client.player != null) {
+            // Suchbox um den Spieler (Radius 128 Blöcke)
+            net.minecraft.world.phys.AABB searchBox = client.player.getBoundingBox().inflate(128.0);
+
+            // Alle geladenen Villager in dieser Box abfragen
+            List<net.minecraft.world.entity.npc.villager.Villager> loadedVillagers =
+                    client.level.getEntitiesOfClass(net.minecraft.world.entity.npc.villager.Villager.class, searchBox);
+
+            for (net.minecraft.world.entity.npc.villager.Villager entity : loadedVillagers) {
+                // Exakte Distanz berechnen und in die Map speichern
+                float exactDistance = client.player.distanceTo(entity);
+                nearbyDistances.put(entity.getUUID(), exactDistance);
+            }
+        }
 
         if (groupByVillager) {
             List<VillagerGroup> groups = new ArrayList<>();
 
             for (VillagerRolodex.IndexedVillager villager : VillagerRolodex.CACHE.values()) {
-                if (!nearbyVillagers.contains(villager.uuid)) continue;
+                // Checken, ob die UUID in unserer neuen Map ist
+                if (!nearbyDistances.containsKey(villager.uuid)) continue;
 
-                double villagerX = villager.cordX;
-                double villagerZ = villager.cordZ;
-                double distance = Math.sqrt(Math.pow(playerX - villagerX, 2) + Math.pow(playerZ - villagerZ, 2));
+                // NEU: Statt Mathe holen wir uns einfach die fertige Zahl aus der Map
+                double distance = nearbyDistances.get(villager.uuid);
 
                 List<VillagerRolodex.TradeInfo> matchingTrades = new ArrayList<>();
                 for (VillagerRolodex.TradeInfo trade : villager.trades) {
-                    if (onlyEnchantedBooks && !trade.result.is(Items.ENCHANTED_BOOK)) continue;
+                    if (onlyEnchantedBooks && !trade.result.is(net.minecraft.world.item.Items.ENCHANTED_BOOK)) continue;
 
                     if (query.isEmpty() || trade.resultSearchKey.contains(query)) {
                         matchingTrades.add(trade);
@@ -242,14 +248,14 @@ public class RolodexSearchScreen extends Screen {
         } else {
             List<RowEntry> flatTrades = new ArrayList<>();
             for (VillagerRolodex.IndexedVillager villager : VillagerRolodex.CACHE.values()) {
-                if (!nearbyVillagers.contains(villager.uuid)) continue;
+                // Checken, ob die UUID in unserer neuen Map ist
+                if (!nearbyDistances.containsKey(villager.uuid)) continue;
 
-                double villagerX = villager.cordX;
-                double villagerZ = villager.cordZ;
-                double distance = Math.sqrt(Math.pow(playerX - villagerX, 2) + Math.pow(playerZ - villagerZ, 2));
+                // NEU: Distanz direkt aus der Map lesen
+                double distance = nearbyDistances.get(villager.uuid);
 
                 for (VillagerRolodex.TradeInfo trade : villager.trades) {
-                    if (onlyEnchantedBooks && !trade.result.is(Items.ENCHANTED_BOOK)) continue;
+                    if (onlyEnchantedBooks && !trade.result.is(net.minecraft.world.item.Items.ENCHANTED_BOOK)) continue;
 
                     if (query.isEmpty() || trade.resultSearchKey.contains(query)) {
                         flatTrades.add(new RowEntry(villager, trade, distance, false));
@@ -267,6 +273,7 @@ public class RolodexSearchScreen extends Screen {
             this.listEntries.addAll(flatTrades);
         }
 
+        // Buttons aktualisieren
         for (int i = 0; i < this.tradesPerPage; i++) {
             int actualIndex = (this.scrollOffset * this.tradesPerPage) + i;
             Button btn = this.tradeButtons.get(i);
