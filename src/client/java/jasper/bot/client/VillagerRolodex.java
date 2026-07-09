@@ -116,7 +116,7 @@ public class VillagerRolodex {
     }
 
     public static boolean isMatch(UUID villagerId) {
-        if (JasperBotConfig.glowStyle != JasperBotConfig.GlowStyle.VANILLA) {
+        if (TradeTrackerConfig.glowStyle != TradeTrackerConfig.GlowStyle.VANILLA) {
             return false;
         }
 

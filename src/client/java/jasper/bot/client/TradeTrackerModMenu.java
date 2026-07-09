@@ -7,7 +7,7 @@ import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.minecraft.network.chat.Component;
 
-public class JasperBotModMenu implements ModMenuApi {
+public class TradeTrackerModMenu implements ModMenuApi {
 
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
@@ -19,7 +19,7 @@ public class JasperBotModMenu implements ModMenuApi {
 
 
             builder.setSavingRunnable(() -> {
-                JasperBotConfig.save();
+                TradeTrackerConfig.save();
             });
 
 
@@ -27,50 +27,50 @@ public class JasperBotModMenu implements ModMenuApi {
             ConfigEntryBuilder entryBuilder = builder.entryBuilder();
 
 
-            general.addEntry(entryBuilder.startIntField(Component.literal("Villager Glow Duration (Seconds)"), JasperBotConfig.glowDurationMs / 1000)
+            general.addEntry(entryBuilder.startIntField(Component.literal("Villager Glow Duration (Seconds)"), TradeTrackerConfig.glowDurationMs / 1000)
                     .setDefaultValue(10)
                     .setMin(1)
                     .setMax(3600) // Max 1 hour
                     .setTooltip(Component.literal("How many seconds the targeted villager will glow."))
 
-                    .setSaveConsumer(newValue -> JasperBotConfig.glowDurationMs = newValue * 1000)
+                    .setSaveConsumer(newValue -> TradeTrackerConfig.glowDurationMs = newValue * 1000)
                     .build());
 
 
-            general.addEntry(entryBuilder.startEnumSelector(Component.literal("ESP Render Style"), JasperBotConfig.GlowStyle.class, JasperBotConfig.glowStyle)
-                    .setDefaultValue(JasperBotConfig.GlowStyle.VANILLA)
+            general.addEntry(entryBuilder.startEnumSelector(Component.literal("ESP Render Style"), TradeTrackerConfig.GlowStyle.class, TradeTrackerConfig.glowStyle)
+                    .setDefaultValue(TradeTrackerConfig.GlowStyle.VANILLA)
                     .setTooltip(Component.literal("Vanilla uses standard outlines. Bounding Box draws a clean X-Ray square through walls."))
-                    .setSaveConsumer(newValue -> JasperBotConfig.glowStyle = newValue)
+                    .setSaveConsumer(newValue -> TradeTrackerConfig.glowStyle = newValue)
                     .build());
 
-            general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Show Trade Menu Distance"), JasperBotConfig.showDistance)
+            general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Show Trade Menu Distance"), TradeTrackerConfig.showDistance)
                     .setDefaultValue(true)
                     .setTooltip(Component.literal("Shows the Distance of the Villager of the Selected Trade"))
-                    .setSaveConsumer(newValue -> JasperBotConfig.showDistance = newValue)
+                    .setSaveConsumer(newValue -> TradeTrackerConfig.showDistance = newValue)
                     .build());
-            general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Do live updates of Distances"), JasperBotConfig.doLiveDistance)
+            general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Do live updates of Distances"), TradeTrackerConfig.doLiveDistance)
                     .setDefaultValue(true)
                     .setTooltip(Component.literal("Does live updates of distance values while the Menu is open"))
-                    .setSaveConsumer(newValue -> JasperBotConfig.doLiveDistance = newValue)
+                    .setSaveConsumer(newValue -> TradeTrackerConfig.doLiveDistance = newValue)
                     .build());
-            general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Do live distance sorting"), JasperBotConfig.doLiveSorting)
+            general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Do live distance sorting"), TradeTrackerConfig.doLiveSorting)
                     .setDefaultValue(false)
                     .setTooltip(Component.literal("Does live updates of the list sorting with distance values while the Menu is open"))
-                    .setSaveConsumer(newValue -> JasperBotConfig.doLiveSorting = newValue)
+                    .setSaveConsumer(newValue -> TradeTrackerConfig.doLiveSorting = newValue)
                     .build());
-            general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Show Villager Level"), JasperBotConfig.showLvl)
+            general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Show Villager Level"), TradeTrackerConfig.showLvl)
                     .setDefaultValue(false)
                     .setTooltip(Component.literal("Shows the Level of the Trader next to its role"))
-                    .setSaveConsumer(newValue -> JasperBotConfig.showLvl = newValue)
+                    .setSaveConsumer(newValue -> TradeTrackerConfig.showLvl = newValue)
                     .build());
 
-            general.addEntry(entryBuilder.startIntField(Component.literal("Scroll Speed of Text (ms)"), JasperBotConfig.scrollSpeed)
+            general.addEntry(entryBuilder.startIntField(Component.literal("Scroll Speed of Text (ms)"), TradeTrackerConfig.scrollSpeed)
                     .setDefaultValue(500)
                     .setMin(1)
                     .setMax(60000) // Max 1 min
                     .setTooltip(Component.literal("How many milliseconds it takes to scroll through the an entire out of bounds text ."))
 
-                    .setSaveConsumer(newValue -> JasperBotConfig.scrollSpeed = newValue )
+                    .setSaveConsumer(newValue -> TradeTrackerConfig.scrollSpeed = newValue )
                     .build());
 
 

@@ -10,7 +10,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
-public class JasperBotClient implements ClientModInitializer {
+public class TradeTrackerClient implements ClientModInitializer {
     public static final KeyMapping.Category JASPERBOT_CATEGORY = KeyMapping.Category.register(
             Identifier.fromNamespaceAndPath(JasperBot.MOD_ID, "jasperbot.binds")
     );
@@ -19,12 +19,12 @@ public class JasperBotClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
 
-        JasperBotConfig.load();
+        TradeTrackerConfig.load();
 
         searchKeyBinding = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.jasperbot.search",
                 InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_R,
+                GLFW.GLFW_KEY_V,
                 JASPERBOT_CATEGORY
         ));
 
@@ -44,7 +44,7 @@ public class JasperBotClient implements ClientModInitializer {
             VillagerRolodex.CACHE.clear();
         });
 
-        JasperBotEspRenderer.register();
+        TradeTrackerEspRenderer.register();
 
     }
 }

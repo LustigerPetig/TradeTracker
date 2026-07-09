@@ -13,14 +13,14 @@ import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-public class JasperBotEspRenderer {
+public class TradeTrackerEspRenderer {
 
     public static void register() {
-        LevelRenderEvents.COLLECT_SUBMITS.register(JasperBotEspRenderer::onRender);
+        LevelRenderEvents.COLLECT_SUBMITS.register(TradeTrackerEspRenderer::onRender);
     }
 
     private static void onRender(LevelRenderContext context) {
-        if (JasperBotConfig.glowStyle != JasperBotConfig.GlowStyle.BOUNDING_BOX) return;
+        if (TradeTrackerConfig.glowStyle != TradeTrackerConfig.GlowStyle.BOUNDING_BOX) return;
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;

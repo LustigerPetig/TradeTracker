@@ -133,7 +133,7 @@ public class RolodexSearchScreen extends Screen {
                         int actualIndex = (this.scrollOffset * this.tradesPerPage) + index;
                         if (actualIndex < this.listEntries.size()) {
                             VillagerRolodex.targetedVillager = this.listEntries.get(actualIndex).villager().uuid;
-                            VillagerRolodex.glowExpiration = System.currentTimeMillis() + JasperBotConfig.glowDurationMs;
+                            VillagerRolodex.glowExpiration = System.currentTimeMillis() + TradeTrackerConfig.glowDurationMs;
                             this.onClose();
                         }
                     })
@@ -161,10 +161,10 @@ public class RolodexSearchScreen extends Screen {
     @Override
     public void tick(){
         super.tick();
-        if(JasperBotConfig.doLiveDistance) {
+        if(TradeTrackerConfig.doLiveDistance) {
             updateLiveDistances();
 
-            if (this.sortMode == SortMode.DISTANCE && JasperBotConfig.doLiveSorting) {
+            if (this.sortMode == SortMode.DISTANCE && TradeTrackerConfig.doLiveSorting) {
                 this.liveSortTimer++;
 
                 if (this.liveSortTimer >= 20){
@@ -344,7 +344,7 @@ public class RolodexSearchScreen extends Screen {
             int maxWidth;
             int  nameTextWidth;
             double liveDistance;
-            if(JasperBotConfig.doLiveDistance) {
+            if(TradeTrackerConfig.doLiveDistance) {
                 liveDistance = this.liveDistances.getOrDefault(entry.villager.uuid, (float) entry.distance());
             }else{
                 liveDistance = (float) entry.distance();
@@ -357,7 +357,7 @@ public class RolodexSearchScreen extends Screen {
                 drawX += 20;
                 String cleanName = formatProfessionName(entry.villager().profession);
                 graphics.text(this.font, cleanName, drawX, drawY + 4, 0xFFFFD700);
-                if (JasperBotConfig.showLvl) {
+                if (TradeTrackerConfig.showLvl) {
                     drawX += this.font.width(cleanName) + 2;
                     String LvlTxt = "(Lvl " + entry.villager().level + "/5)";
                     graphics.text(this.font, LvlTxt, drawX, drawY + 4, 0xFFFFD700);
@@ -374,7 +374,7 @@ public class RolodexSearchScreen extends Screen {
                    if(!(nameTextWidth> maxWidth)){
                    graphics.text(this.font,"'" + entry.villager().nameTag + "'", drawX, drawY + 4, ARGB.white(1.0F));
                 }else{
-                       if(JasperBotConfig.showDistance){
+                       if(TradeTrackerConfig.showDistance){
                            maxWidth -= this.font.width(distanceText) + 5;
                        }
                        graphics.enableScissor(drawX, drawY - 2, drawX + maxWidth, drawY + 12);
@@ -385,7 +385,7 @@ public class RolodexSearchScreen extends Screen {
                        int maxScroll = nameTextWidth - maxWidth;
 
 
-                       double wave = (Math.sin((double) time / JasperBotConfig.scrollSpeed) + 1.0) / 2.0;
+                       double wave = (Math.sin((double) time / TradeTrackerConfig.scrollSpeed) + 1.0) / 2.0;
                        int scrollOffset = (int) (maxScroll * wave);
 
 
@@ -395,7 +395,7 @@ public class RolodexSearchScreen extends Screen {
                        }
                 }
 
-                if (JasperBotConfig.showDistance) {
+                if (TradeTrackerConfig.showDistance) {
                     int textWidth = this.font.width(distanceText);
                     int rightAlignedX = btn.getX() + btn.getWidth() - textWidth - 5;
                     graphics.text(this.font, distanceText, rightAlignedX, drawY + 4, ARGB.white(1.0F));
@@ -447,7 +447,7 @@ public class RolodexSearchScreen extends Screen {
                 if(!(nameTextWidth> maxWidth)){
                     graphics.text(this.font, trade.niceResultName, drawX, drawY + 4, 0xFF55FF55);
                 }else {
-                    if (!groupByVillager && JasperBotConfig.showDistance) {
+                    if (!groupByVillager && TradeTrackerConfig.showDistance) {
                         maxWidth -= this.font.width(distanceText) + 5;
                     }
                     graphics.enableScissor(drawX, drawY - 2, drawX + maxWidth, drawY + 12);
@@ -456,7 +456,7 @@ public class RolodexSearchScreen extends Screen {
                     long time = Util.getMillis();
                     int maxScroll = nameTextWidth - maxWidth;
 
-                    double wave = (Math.sin((double) time / JasperBotConfig.scrollSpeed) + 1.0) / 2.0;
+                    double wave = (Math.sin((double) time / TradeTrackerConfig.scrollSpeed) + 1.0) / 2.0;
                     int scrollOffset = (int) (maxScroll * wave);
 
                     graphics.text(this.font, trade.niceResultName, drawX - scrollOffset, drawY + 4, 0xFF55FF55);
@@ -464,7 +464,7 @@ public class RolodexSearchScreen extends Screen {
                     graphics.disableScissor();
                 }
 
-                if (!groupByVillager && JasperBotConfig.showDistance) {
+                if (!groupByVillager && TradeTrackerConfig.showDistance) {
                     int textWidth = this.font.width(distanceText);
                     int rightAlignedX = btn.getX() + btn.getWidth() - textWidth - 5;
                     graphics.text(this.font, distanceText, rightAlignedX, drawY + 4, ARGB.white(1.0F));

@@ -23,12 +23,12 @@
 		],
 		"client": [
 			{
-				"value": "jasper.bot.client.JasperBotClient",
+				"value": "jasper.bot.client.TradeTrackerClient",
 				"adapter": "kotlin"
 			}
 		],
 		"modmenu": [
-			"jasper.bot.client.JasperBotModMenu"
+			"jasper.bot.client.TradeTrackerModMenu"
 		],
 		"fabric-datagen": [
 			{
