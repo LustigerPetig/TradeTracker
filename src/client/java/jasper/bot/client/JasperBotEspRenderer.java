@@ -40,7 +40,6 @@ public class JasperBotEspRenderer {
     private static void drawBoundingBox(PoseStack poseStack, SubmitNodeCollector collector, Entity entity, Vec3 camPos) {
         AABB worldBox = entity.getBoundingBox();
 
-        // Translate world-space AABB into camera-relative space
         double minX = worldBox.minX - camPos.x;
         double minY = worldBox.minY - camPos.y;
         double minZ = worldBox.minZ - camPos.z;

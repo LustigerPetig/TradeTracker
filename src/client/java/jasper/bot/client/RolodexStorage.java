@@ -67,7 +67,6 @@ public class RolodexStorage {
                 for (VillagerRolodex.TradeInfo trade : villager.trades) {
                     CompoundTag tradeTag = new CompoundTag();
 
-                    // FIX: Swapped CODEC for OPTIONAL_CODEC to allow empty items (like an empty CostB)
                     tradeTag.put("CostA", ItemStack.OPTIONAL_CODEC.encodeStart(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), trade.costA).getOrThrow());
                     tradeTag.put("LocalCostA", ItemStack.OPTIONAL_CODEC.encodeStart(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), trade.localCostA).getOrThrow());
                     tradeTag.put("CostB", ItemStack.OPTIONAL_CODEC.encodeStart(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), trade.costB).getOrThrow());
@@ -138,7 +137,6 @@ public class RolodexStorage {
                         if (tradeTagOpt.isEmpty()) continue;
                         CompoundTag tradeTag = tradeTagOpt.get();
 
-                        // FIX: Swapped CODEC for OPTIONAL_CODEC here as well
                         ItemStack costA = ItemStack.OPTIONAL_CODEC.parse(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), tradeTag.getCompound("CostA").orElse(new CompoundTag())).getOrThrow();
                         CompoundTag fallbackTag = tradeTag.getCompound("CostA").orElse(new CompoundTag());
                         ItemStack localCostA = ItemStack.OPTIONAL_CODEC.parse(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), tradeTag.getCompound("LocalCostA").orElse(fallbackTag)).getOrThrow();

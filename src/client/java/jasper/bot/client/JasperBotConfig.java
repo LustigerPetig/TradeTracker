@@ -9,7 +9,6 @@ import java.util.Properties;
 
 public class JasperBotConfig {
 
-    // NEW: Define the two styles of ESP rendering available
     public enum GlowStyle {
         VANILLA,
         BOUNDING_BOX
@@ -21,7 +20,6 @@ public class JasperBotConfig {
 
     public static int scrollSpeed = 500;
 
-    // NEW: Store the current selected style (Defaults to VANILLA)
     public static GlowStyle glowStyle = GlowStyle.VANILLA;
 
     private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("jasperbot.properties");
@@ -38,11 +36,10 @@ public class JasperBotConfig {
                     showLvl = Boolean.parseBoolean(props.getProperty("showLvl", "false"));
                     scrollSpeed = Integer.parseInt(props.getProperty("scrollSpeed","500"));
 
-                    // NEW: Safely read the enum value from the config file string
                     try {
                         glowStyle = GlowStyle.valueOf(props.getProperty("glowStyle", "VANILLA"));
                     } catch (IllegalArgumentException e) {
-                        glowStyle = GlowStyle.VANILLA; // Safe fallback if file gets corrupted
+                        glowStyle = GlowStyle.VANILLA;
                     }
                 }
             } else {
@@ -62,7 +59,6 @@ public class JasperBotConfig {
             props.setProperty("showLvl",String.valueOf(showLvl));
             props.setProperty("scrollSpeed", String.valueOf(scrollSpeed));
 
-            // NEW: Write the selected style enum as a text string to the file
             props.setProperty("glowStyle", glowStyle.name());
 
             props.store(out, "Jasper Bot Configuration");

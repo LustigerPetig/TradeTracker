@@ -43,6 +43,5 @@ public class JasperBotClient implements ClientModInitializer {
 
         JasperBotEspRenderer.register();
 
-        // We removed the broken WorldRenderEvents hook from here!
     }
 }

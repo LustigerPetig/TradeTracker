@@ -9,9 +9,6 @@ import net.minecraft.client.renderer.rendertype.LayeringTransform;
 import net.minecraft.client.renderer.rendertype.OutputTarget;
 import net.minecraft.client.renderer.rendertype.RenderType;
 
-// The next few imports may live in a different package (blaze3d) —
-// let your IDE's auto-import (Alt+Enter / Ctrl+.) resolve them once you
-// start typing RenderPipeline / DepthStencilState / CompareOp below.
 
 public final class JasperBotRenderTypes {
 

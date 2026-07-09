@@ -44,11 +44,11 @@ public class RolodexSearchScreen extends Screen {
     private Button prevButton;
     private Button sortButton;
     private Button toggleModeButton;
-    private Button filterBookButton; // NEW: Book filter button
+    private Button filterBookButton;
 
     private static SortMode sortMode = SortMode.DISTANCE;
     private static boolean groupByVillager = false;
-    private static boolean onlyEnchantedBooks = false; // NEW: Static state memory
+    private static boolean onlyEnchantedBooks = false;
 
     private int tradesPerPage = 5;
 
@@ -66,11 +66,9 @@ public class RolodexSearchScreen extends Screen {
 
         this.tradeButtons.clear();
 
-        // Adjusted usable height because we added a second row of controls
         int usableHeight = this.height - 135;
         this.tradesPerPage = Math.max(1, usableHeight / 26);
 
-        // TOP ROW: Wider Search box centered at Y = 28
         this.searchBox = new EditBox(this.font, this.width / 2 - 80, 28, 160, 20, Component.literal("Search Trades"));
         this.searchBox.setMaxLength(50);
         this.searchBox.setValue(VillagerRolodex.searchQuery);
@@ -83,9 +81,7 @@ public class RolodexSearchScreen extends Screen {
         this.addRenderableWidget(this.searchBox);
         this.setInitialFocus(this.searchBox);
 
-        // SECOND ROW: Three buttons evenly spaced at Y = 52
 
-        // 1. View toggle (Left)
         this.toggleModeButton = Button.builder(Component.literal(groupByVillager ? "View: Villagers" : "View: Trades"), btn -> {
             groupByVillager = !groupByVillager;
             btn.setMessage(Component.literal(groupByVillager ? "View: Villagers" : "View: Trades"));
@@ -94,7 +90,6 @@ public class RolodexSearchScreen extends Screen {
         }).bounds(this.width / 2 - 165, 52, 100, 20).build();
         this.addRenderableWidget(this.toggleModeButton);
 
-        // 2. NEW: Book Filter toggle (Center)
         this.filterBookButton = Button.builder(Component.literal(onlyEnchantedBooks ? "Filter: Books" : "Filter: All"), btn -> {
             onlyEnchantedBooks = !onlyEnchantedBooks;
             btn.setMessage(Component.literal(onlyEnchantedBooks ? "Filter: Books" : "Filter: All"));
@@ -103,7 +98,6 @@ public class RolodexSearchScreen extends Screen {
         }).bounds(this.width / 2 - 55, 52, 110, 20).build();
         this.addRenderableWidget(this.filterBookButton);
 
-        // 3. Sort toggle (Right)
         this.sortButton = Button.builder(Component.literal(sortMode.label), btn -> {
             sortMode = sortMode.next();
             btn.setMessage(Component.literal(sortMode.label));
@@ -112,7 +106,6 @@ public class RolodexSearchScreen extends Screen {
         }).bounds(this.width / 2 + 65, 52, 100, 20).build();
         this.addRenderableWidget(this.sortButton);
 
-        // Bottom Navigation
         this.prevButton = Button.builder(Component.literal("<"), btn -> {
             if (this.scrollOffset > 0) {
                 this.scrollOffset--;
@@ -141,7 +134,6 @@ public class RolodexSearchScreen extends Screen {
                             this.onClose();
                         }
                     })
-                    // List pushes down to Y = 85 to make room for the new buttons
                     .bounds(this.width / 2 - 165, 85 + (i * 26), 330, 24).build();
 
             this.tradeButtons.add(btn);
@@ -219,7 +211,6 @@ public class RolodexSearchScreen extends Screen {
 
                 List<VillagerRolodex.TradeInfo> matchingTrades = new ArrayList<>();
                 for (VillagerRolodex.TradeInfo trade : villager.trades) {
-                    // NEW: If the book filter is on, immediately skip any non-enchanted book result
                     if (onlyEnchantedBooks && !trade.result.is(Items.ENCHANTED_BOOK)) continue;
 
                     if (query.isEmpty() || trade.resultSearchKey.contains(query)) {
@@ -256,7 +247,6 @@ public class RolodexSearchScreen extends Screen {
                 double distance = Math.sqrt(Math.pow(playerX - villagerX, 2) + Math.pow(playerZ - villagerZ, 2));
 
                 for (VillagerRolodex.TradeInfo trade : villager.trades) {
-                    // NEW: Same filter check for flat mode
                     if (onlyEnchantedBooks && !trade.result.is(Items.ENCHANTED_BOOK)) continue;
 
                     if (query.isEmpty() || trade.resultSearchKey.contains(query)) {
