@@ -40,7 +40,7 @@ public class TradeTrackerModMenu implements ModMenuApi {
             // 2. ESP Render Style
             var styleSelector = entryBuilder.startEnumSelector(Component.literal("ESP Render Style"), TradeTrackerConfig.GlowStyle.class, TradeTrackerConfig.glowStyle)
                     .setDefaultValue(TradeTrackerConfig.GlowStyle.VANILLA)
-                    .setTooltip(Component.literal("Vanilla uses standard outlines. Bounding Box draws a clean X-Ray square through walls."))
+                    .setTooltip(Component.literal("Vanilla uses standard outlines. Bounding Box draws a clean bounding box visible through blocks."))
                     .setSaveConsumer(newValue -> TradeTrackerConfig.glowStyle = newValue)
                     .build();
 
