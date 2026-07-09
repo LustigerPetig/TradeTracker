@@ -15,7 +15,6 @@ public class JasperBotConfig {
         BOUNDING_BOX
     }
 
-    public static boolean forceOpenGL = true;
     public static int glowDurationMs = 10000;
     public static boolean showDistance = true;
     public static boolean showLvl = false;
@@ -34,7 +33,6 @@ public class JasperBotConfig {
                     Properties props = new Properties();
                     props.load(in);
 
-                    forceOpenGL = Boolean.parseBoolean(props.getProperty("forceOpenGL", "true"));
                     glowDurationMs = Integer.parseInt(props.getProperty("glowDurationMs", "10000"));
                     showDistance = Boolean.parseBoolean(props.getProperty("showDistance", "true"));
                     showLvl = Boolean.parseBoolean(props.getProperty("showLvl", "false"));
@@ -59,7 +57,6 @@ public class JasperBotConfig {
         try (OutputStream out = Files.newOutputStream(CONFIG_PATH)) {
             Properties props = new Properties();
 
-            props.setProperty("forceOpenGL", String.valueOf(forceOpenGL));
             props.setProperty("glowDurationMs", String.valueOf(glowDurationMs));
             props.setProperty("showDistance", String.valueOf(showDistance));
             props.setProperty("showLvl",String.valueOf(showLvl));

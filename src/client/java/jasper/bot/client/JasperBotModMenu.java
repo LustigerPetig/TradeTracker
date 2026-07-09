@@ -26,13 +26,6 @@ public class JasperBotModMenu implements ModMenuApi {
             ConfigCategory general = builder.getOrCreateCategory(Component.literal("General"));
             ConfigEntryBuilder entryBuilder = builder.entryBuilder();
 
-            // 4. Add the Force OpenGL Toggle
-            general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Force OpenGL 4.6"), JasperBotConfig.forceOpenGL)
-                    .setDefaultValue(true)
-                    .setTooltip(Component.literal("Requires a game restart to take effect!"))
-                    .setSaveConsumer(newValue -> JasperBotConfig.forceOpenGL = newValue)
-                    .build());
-
             // 5. Add the Glow Duration Number Field
             general.addEntry(entryBuilder.startIntField(Component.literal("Villager Glow Duration (Seconds)"), JasperBotConfig.glowDurationMs / 1000)
                     .setDefaultValue(10)
@@ -50,7 +43,7 @@ public class JasperBotModMenu implements ModMenuApi {
                     .setSaveConsumer(newValue -> JasperBotConfig.glowStyle = newValue)
                     .build());
 
-            general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Show Trade menu Distance"), JasperBotConfig.showDistance)
+            general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Show Trade Menu Distance"), JasperBotConfig.showDistance)
                     .setDefaultValue(true)
                     .setTooltip(Component.literal("Shows the Distance of the Villager of the Selected Trade"))
                     .setSaveConsumer(newValue -> JasperBotConfig.showDistance = newValue)
