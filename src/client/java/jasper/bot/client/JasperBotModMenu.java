@@ -53,7 +53,11 @@ public class JasperBotModMenu implements ModMenuApi {
                     .setTooltip(Component.literal("Does live updates of distance values while the Menu is open"))
                     .setSaveConsumer(newValue -> JasperBotConfig.doLiveDistance = newValue)
                     .build());
-            
+            general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Do live distance sorting"), JasperBotConfig.doLiveSorting)
+                    .setDefaultValue(false)
+                    .setTooltip(Component.literal("Does live updates of the list sorting with distance values while the Menu is open"))
+                    .setSaveConsumer(newValue -> JasperBotConfig.doLiveSorting = newValue)
+                    .build());
             general.addEntry(entryBuilder.startBooleanToggle(Component.literal("Show Villager Level"), JasperBotConfig.showLvl)
                     .setDefaultValue(false)
                     .setTooltip(Component.literal("Shows the Level of the Trader next to its role"))

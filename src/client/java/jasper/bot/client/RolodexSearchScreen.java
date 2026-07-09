@@ -18,6 +18,8 @@ import java.util.*;
 
 public class RolodexSearchScreen extends Screen {
 
+    private int liveSortTimer;
+
     private enum SortMode {
         DISTANCE("Sort: Distance"),
         NAME("Sort: Name"),
@@ -159,7 +161,18 @@ public class RolodexSearchScreen extends Screen {
     @Override
     public void tick(){
         super.tick();
-        updateLiveDistances();
+        if(JasperBotConfig.doLiveDistance) {
+            updateLiveDistances();
+
+            if (this.sortMode == SortMode.DISTANCE && JasperBotConfig.doLiveSorting) {
+                this.liveSortTimer++;
+
+                if (this.liveSortTimer >= 20){
+                    this.liveSortTimer = 0;
+                    refreshList();
+                }
+            }
+        }
     }
     private void updateLiveDistances(){
         Minecraft client = Minecraft.getInstance();
