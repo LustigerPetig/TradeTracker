@@ -3,6 +3,15 @@ plugins {
     id 'net.neoforged.moddev'
 }
 
+repositories {
+    maven {
+        name = "Shedaniel Maven"
+        url = "https://maven.shedaniel.me/"
+    }
+}
+
+
+
 neoForge {
     version = neoforge_version
     // Automatically enable neoforge AccessTransformers if the file exists
