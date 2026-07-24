@@ -5,7 +5,6 @@
 	"client": [
 		"AbstractContainerScreenMixin",
 		"EntityGlowMixin",
-		"InteractionMixin",
 		"MultiPlayerGameModeMixin"
 	],
 	"injectors": {

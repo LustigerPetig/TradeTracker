@@ -35,8 +35,7 @@
 
     },
     "mixins": [
-        "tradetracker.client.mixins.json",
-        "tradetracker.fabric.mixins.json"
+        "tradetracker.client.mixins.json"
     ],
     "depends": {
         "fabricloader": ">=0.19.3",

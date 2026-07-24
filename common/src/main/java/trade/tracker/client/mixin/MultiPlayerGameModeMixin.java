@@ -14,19 +14,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import trade.tracker.client.VillagerRolodex;
 
 @Mixin(MultiPlayerGameMode.class)
-public class InteractionMixin {
+public abstract class MultiPlayerGameModeMixin {
 
     @Inject(method = "interact", at = @At("HEAD"))
     private void onInteract(Player player, Entity entity, EntityHitResult hitResult, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
-
         if (entity instanceof Villager villager) {
-
-
             VillagerRolodex.lastInteractedVillager = villager.getUUID();
-
-
             VillagerRolodex.lastInteractedVillagerEntity = villager;
 
+            System.out.println("[Rolodex] Interacted with villager: " + villager.getUUID() + " | Beruf: " + villager.getVillagerData().profession().getRegisteredName());
         }
     }
 }

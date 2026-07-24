@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [],
   "client": [
-    "trade.tracker.client.mixin.MixinTitleScreen"
+    "AbstractContainerScreenMixin",
+    "EntityGlowMixin",
+    "MultiPlayerGameModeMixin"
   ],
   "server": [],
   "injectors": {
