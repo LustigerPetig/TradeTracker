@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "package": "trade.tracker.client.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "AbstractContainerScreenMixin",
+    "EntityGlowMixin",
+    "InteractionMixin",
+    "MultiPlayerGameModeMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

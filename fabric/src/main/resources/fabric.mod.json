@@ -1,36 +1,51 @@
 {
     "schemaVersion": 1,
-    "id": "${mod_id}",
+    "id": "tradetracker",
     "version": "${version}",
-    "name": "${mod_name}",
-    "description": "${description}",
+    "name": "Trade Tracker",
+    "description": "A mod made to help you find the trades you are looking for!",
     "authors": [
-        "${mod_author}"
+        "LusterPetig, Shadow_of_Doom03"
     ],
     "contact": {
         "homepage": "https://fabricmc.net/",
-        "sources": "https://github.com/FabricMC/fabric-example-mod"
+        "sources": "https://github.com/LustigerPetig/TradeTracker",
+        "issues": "https://github.com/LusterPetig/TradeTracker/issues"
     },
-    "license": "${license}",
-    "icon": "${mod_id}.png",
+    "license": "GNU GPL-3.0",
+    "icon": "assets/tradetracker/icon.png",
     "environment": "*",
     "entrypoints": {
         "main": [
-            "com.example.examplemod.ExampleMod"
+            {
+                "value": "trade.tracker.client.TradeTrackerFabric"
+
+            }
+        ],
+        "client": [
+            {
+                "value": "trade.tracker.client.TradeTrackerClient"
+
+            }
+        ],
+        "modmenu": [
+            "trade.tracker.client.TradeTrackerModMenu"
         ]
+
+
     },
     "mixins": [
-        "${mod_id}.mixins.json",
-        "${mod_id}.fabric.mixins.json"
+        "tradetracker.fabric.mixins.json",
+        {
+            "config": "tradetracker.fabric.mixins.json",
+            "environment": "client"
+        }
     ],
     "depends": {
-        "fabricloader": ">=${fabric_loader_version}",
+        "fabricloader": ">=0.19.3",
+        "minecraft": "~26.2",
+        "java": ">=25",
         "fabric-api": "*",
-        "minecraft": "~${minecraft_version}",
-        "java": ">=${java_version}"
-    },
-    "suggests": {
-        "another-mod": "*"
+        "cloth-config": "*"
     }
 }
-  
