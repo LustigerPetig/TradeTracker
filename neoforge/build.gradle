@@ -10,6 +10,13 @@ repositories {
     }
 }
 
+dependencies {
+    // Add this line to pull the NeoForge runtime version of Cloth Config
+    implementation "me.shedaniel.cloth:cloth-config-neoforge:${cloth_config_version}"
+}
+
+
+
 
 
 neoForge {
