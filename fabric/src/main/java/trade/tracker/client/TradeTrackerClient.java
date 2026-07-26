@@ -20,12 +20,10 @@ public class TradeTrackerClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
 
-        // Hook up the common ESP Renderer
         LevelRenderEvents.COLLECT_SUBMITS.register(context -> {
             TradeTrackerEspRenderer.render(context.poseStack(), context.submitNodeCollector());
         });
 
-        // Register Keybindings
         searchKeyBinding = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.jasperbot.search",
                 InputConstants.Type.KEYSYM,
@@ -33,14 +31,12 @@ public class TradeTrackerClient implements ClientModInitializer {
                 TradeTracker_CATEGORY
         ));
 
-        // Register Tick Events
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (searchKeyBinding.consumeClick()) {
                 client.gui.setScreen(new RolodexSearchScreen());
             }
         });
 
-        // Register Connection Events
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             TradeTracker.LOGGER.info("[TradeTracker] Joined world, loading Rolodex data...");
             RolodexStorage.load();

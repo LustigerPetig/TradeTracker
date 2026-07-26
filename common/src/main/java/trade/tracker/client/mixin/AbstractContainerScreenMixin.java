@@ -34,7 +34,7 @@ public abstract class AbstractContainerScreenMixin {
             // Check Villager
             if (villager != null && menu != null && !menu.getOffers().isEmpty()) {
 
-                // 1. Read metadata from Entity
+                // Read metadata from Entity
                 String profession = villager.getVillagerData().profession().getRegisteredName();
                 String nameTag = villager.getName().getString();
                 int level = villager.getVillagerData().level();

@@ -22,10 +22,8 @@ public class TradeTrackerConfig {
     public static GlowStyle glowStyle = GlowStyle.VANILLA;
     public static int glowColor = 0xFF00FF00;
 
-    // Make this mutable so loaders can inject the correct path
     private static Path CONFIG_PATH;
 
-    // Loaders will call this and pass their specific config directory
     public static void load(Path configDir) {
         CONFIG_PATH = configDir.resolve("tradetracker.properties");
         try {
@@ -57,7 +55,7 @@ public class TradeTrackerConfig {
     }
 
     public static void save() {
-        if (CONFIG_PATH == null) return; // Prevent saving before initialization
+        if (CONFIG_PATH == null) return;
 
         try (OutputStream out = Files.newOutputStream(CONFIG_PATH)) {
             Properties props = new Properties();
