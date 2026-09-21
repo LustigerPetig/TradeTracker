@@ -39,11 +39,11 @@ public class TradeTrackerNeoForge {
 
     private void registerKeyBindings(RegisterKeyMappingsEvent event) {
         KeyMapping.Category category = KeyMapping.Category.register(
-                net.minecraft.resources.Identifier.fromNamespaceAndPath(Constants.MOD_ID, "jasperbot.binds")
+                net.minecraft.resources.Identifier.fromNamespaceAndPath(Constants.MOD_ID, "tradetracker")
         );
 
         searchKeyBinding = new KeyMapping(
-                "key.jasperbot.search",
+                "key.tradetracker.search",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_V,
                 category
