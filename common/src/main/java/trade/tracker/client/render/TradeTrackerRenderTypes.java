@@ -1,11 +1,11 @@
 package trade.tracker.client.render;
 
-import com.mojang.blaze3d.pipeline.DepthStencilState;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.platform.CompareOp;
+import com.mojang.renderpearl.api.pipeline.ColorTargetState;
+import com.mojang.renderpearl.api.pipeline.DepthStencilState;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.pipeline.CompareOp;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.rendertype.LayeringTransform;
-import net.minecraft.client.renderer.rendertype.OutputTarget;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 
@@ -23,19 +23,19 @@ public final class TradeTrackerRenderTypes {
             RenderPipeline.Snippet linesSnippet = (RenderPipeline.Snippet) snippetField.get(null);
 
             RenderPipeline pipeline = RenderPipeline.builder(linesSnippet)
-                    .withLocation("jasperbot_lines_no_depth")
+                    .withLocation("tradetracker_lines_no_depth")
                     .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
+                    .withColorTargetState(ColorTargetState.DEFAULT)
                     .build();
 
             RenderSetup setup = RenderSetup.builder(pipeline)
                     .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
-                    .setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
                     .createRenderSetup();
 
             Method createMethod = RenderType.class.getDeclaredMethod("create", String.class, RenderSetup.class);
             createMethod.setAccessible(true);
 
-            return (RenderType) createMethod.invoke(null, "jasperbot_lines_no_depth", setup);
+            return (RenderType) createMethod.invoke(null, "tradetracker_lines_no_depth", setup);
 
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize TradeTrackerRenderTypes via Reflection", e);
