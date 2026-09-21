@@ -13,7 +13,6 @@ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
-import org.lwjgl.glfw.GLFW;
 
 @Mod(Constants.MOD_ID)
 public class TradeTrackerNeoForge {
@@ -39,13 +38,13 @@ public class TradeTrackerNeoForge {
 
     private void registerKeyBindings(RegisterKeyMappingsEvent event) {
         KeyMapping.Category category = KeyMapping.Category.register(
-                net.minecraft.resources.Identifier.fromNamespaceAndPath(Constants.MOD_ID, "tradetracker")
+                net.minecraft.resources.Identifier.fromNamespaceAndPath(Constants.MOD_ID, "tradetracker.binds")
         );
 
         searchKeyBinding = new KeyMapping(
                 "key.tradetracker.search",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_V,
+                InputConstants.Type.KEYBOARD,
+                InputConstants.KEY_V,
                 category
         );
 
