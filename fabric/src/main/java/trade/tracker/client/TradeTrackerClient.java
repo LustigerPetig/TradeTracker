@@ -8,7 +8,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.Identifier;
-import org.lwjgl.glfw.GLFW;
+
 
 public class TradeTrackerClient implements ClientModInitializer {
 
@@ -26,8 +26,8 @@ public class TradeTrackerClient implements ClientModInitializer {
 
         searchKeyBinding = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.jasperbot.search",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_V,
+                InputConstants.Type.KEYBOARD,
+                InputConstants.KEY_V,
                 TradeTracker_CATEGORY
         ));
 
