@@ -10,13 +10,15 @@ import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
+import org.lwjgl.glfw.GLFW;
 
 @Mod(Constants.MOD_ID)
 public class TradeTrackerNeoForge {
 
+    public static final String TRADETRACKER_CATEGORY = "key.category.tradetracker.tradetracker.binds";
     public static KeyMapping searchKeyBinding;
 
     public TradeTrackerNeoForge(IEventBus modEventBus, ModContainer modContainer) {
@@ -33,19 +35,15 @@ public class TradeTrackerNeoForge {
         NeoForge.EVENT_BUS.addListener(this::onClientTick);
         NeoForge.EVENT_BUS.addListener(this::onPlayerJoin);
         NeoForge.EVENT_BUS.addListener(this::onPlayerLeave);
-        NeoForge.EVENT_BUS.addListener(this::onSubmitCustomGeometry);
+        NeoForge.EVENT_BUS.addListener(this::onRenderLevelStage);
     }
 
     private void registerKeyBindings(RegisterKeyMappingsEvent event) {
-        KeyMapping.Category category = KeyMapping.Category.register(
-                net.minecraft.resources.Identifier.fromNamespaceAndPath(Constants.MOD_ID, "tradetracker.binds")
-        );
-
         searchKeyBinding = new KeyMapping(
                 "key.tradetracker.search",
-                InputConstants.Type.KEYBOARD,
-                InputConstants.KEY_V,
-                category
+                InputConstants.Type.KEYSYM,
+                GLFW.GLFW_KEY_V,
+                TRADETRACKER_CATEGORY
         );
 
         event.register(searchKeyBinding);
@@ -53,7 +51,7 @@ public class TradeTrackerNeoForge {
 
     private void onClientTick(ClientTickEvent.Post event) {
         while (searchKeyBinding != null && searchKeyBinding.consumeClick()) {
-            Minecraft.getInstance().gui.setScreen(new RolodexSearchScreen());
+            Minecraft.getInstance().setScreen(new RolodexSearchScreen());
         }
     }
 
@@ -67,9 +65,9 @@ public class TradeTrackerNeoForge {
         VillagerRolodex.CACHE.clear();
     }
 
-    private void onSubmitCustomGeometry(SubmitCustomGeometryEvent event) {
-
-        TradeTrackerEspRenderer.render(event.getPoseStack(), event.getSubmitNodeCollector());
+    private void onRenderLevelStage(RenderLevelStageEvent event) {
+        if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_ENTITIES) {
+            TradeTrackerEspRenderer.render(event.getPoseStack(), Minecraft.getInstance().renderBuffers().bufferSource());
+        }
     }
-
 }

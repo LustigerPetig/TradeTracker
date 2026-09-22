@@ -44,7 +44,18 @@ public class TradeTrackerConfig {
                     } catch (IllegalArgumentException e) {
                         glowStyle = GlowStyle.VANILLA;
                     }
-                    glowColor = Integer.parseInt(props.getProperty("glowColor", "0xFF00FF00"));
+                    String colorVal = props.getProperty("glowColor", "0xFF00FF00").trim();
+                    try {
+                        if (colorVal.startsWith("0x") || colorVal.startsWith("0X")) {
+                            glowColor = (int) Long.parseLong(colorVal.substring(2), 16);
+                        } else if (colorVal.startsWith("#")) {
+                            glowColor = (int) Long.parseLong(colorVal.substring(1), 16);
+                        } else {
+                            glowColor = (int) Long.parseLong(colorVal);
+                        }
+                    } catch (Exception ignored) {
+                        glowColor = 0xFF00FF00;
+                    }
                 }
             } else {
                 save();

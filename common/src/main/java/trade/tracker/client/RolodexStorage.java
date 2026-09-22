@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public class RolodexStorage {
@@ -31,12 +31,13 @@ public class RolodexStorage {
 
     private static String getServerIdSanitized() {
         Minecraft client = Minecraft.getInstance();
-        String id = "unknown_world";
+        if (client.isSingleplayer()) {
+            return "Singleplayer";
+        }
 
+        String id = "unknown";
         if (client.getCurrentServer() != null) {
             id = client.getCurrentServer().ip;
-        } else if (client.getSingleplayerServer() != null) {
-            id = client.getSingleplayerServer().getWorldData().getLevelName();
         }
 
         return id.replaceAll("[^a-zA-Z0-9.-]", "_");
@@ -109,48 +110,42 @@ public class RolodexStorage {
             RegistryAccess regs = client.getConnection().registryAccess();
             CompoundTag root = NbtIo.readCompressed(savePath, NbtAccounter.unlimitedHeap());
 
-            Optional<ListTag> villagersOpt = root.getList("Villagers");
-            if (villagersOpt.isEmpty()) return;
-            ListTag villagersList = villagersOpt.get();
+            if (!root.contains("Villagers", Tag.TAG_LIST)) return;
+            ListTag villagersList = root.getList("Villagers", Tag.TAG_COMPOUND);
 
             for (int i = 0; i < villagersList.size(); i++) {
-                Optional<CompoundTag> villagerTagOpt = villagersList.getCompound(i);
-                if (villagerTagOpt.isEmpty()) continue;
-                CompoundTag villagerTag = villagerTagOpt.get();
+                CompoundTag villagerTag = villagersList.getCompound(i);
 
-                Optional<String> uuidStrOpt = villagerTag.getString("VillagerID");
-                if (uuidStrOpt.isEmpty() || uuidStrOpt.get().isEmpty()) continue;
+                String uuidStr = villagerTag.getString("VillagerID");
+                if (uuidStr.isEmpty()) continue;
 
                 UUID uuid;
                 try {
-                    uuid = UUID.fromString(uuidStrOpt.get());
+                    uuid = UUID.fromString(uuidStr);
                 } catch (IllegalArgumentException e) {
                     continue;
                 }
-                String nameTag = villagerTag.getString("Nametag").orElse("Villager");
-                String profession = villagerTag.getString("Profession").orElse("UNKNOWN");
-                int level = villagerTag.getInt("Level").orElse(1);
-                int chunkX = villagerTag.getInt("ChunkX").orElse(0);
-                int chunkZ = villagerTag.getInt("ChunkZ").orElse(0);
+                String nameTag = villagerTag.contains("Nametag") ? villagerTag.getString("Nametag") : "Villager";
+                String profession = villagerTag.contains("Profession") ? villagerTag.getString("Profession") : "UNKNOWN";
+                int level = villagerTag.contains("Level") ? villagerTag.getInt("Level") : 1;
+                int chunkX = villagerTag.contains("ChunkX") ? villagerTag.getInt("ChunkX") : 0;
+                int chunkZ = villagerTag.contains("ChunkZ") ? villagerTag.getInt("ChunkZ") : 0;
 
                 List<VillagerRolodex.TradeInfo> trades = new ArrayList<>();
-                Optional<ListTag> tradesListOpt = villagerTag.getList("Trades");
-
-                if (tradesListOpt.isPresent()) {
-                    ListTag tradesList = tradesListOpt.get();
+                if (villagerTag.contains("Trades", Tag.TAG_LIST)) {
+                    ListTag tradesList = villagerTag.getList("Trades", Tag.TAG_COMPOUND);
                     for (int j = 0; j < tradesList.size(); j++) {
-                        Optional<CompoundTag> tradeTagOpt = tradesList.getCompound(j);
-                        if (tradeTagOpt.isEmpty()) continue;
-                        CompoundTag tradeTag = tradeTagOpt.get();
+                        CompoundTag tradeTag = tradesList.getCompound(j);
 
-                        ItemStack costA = ItemStack.OPTIONAL_CODEC.parse(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), tradeTag.getCompound("CostA").orElse(new CompoundTag())).getOrThrow();
-                        CompoundTag fallbackTag = tradeTag.getCompound("CostA").orElse(new CompoundTag());
-                        ItemStack localCostA = ItemStack.OPTIONAL_CODEC.parse(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), tradeTag.getCompound("LocalCostA").orElse(fallbackTag)).getOrThrow();
-                        ItemStack costB = ItemStack.OPTIONAL_CODEC.parse(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), tradeTag.getCompound("CostB").orElse(new CompoundTag())).getOrThrow();
-                        ItemStack result = ItemStack.OPTIONAL_CODEC.parse(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), tradeTag.getCompound("Result").orElse(new CompoundTag())).getOrThrow();
+                        ItemStack costA = ItemStack.OPTIONAL_CODEC.parse(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), tradeTag.getCompound("CostA")).result().orElse(ItemStack.EMPTY);
+                        CompoundTag fallbackTag = tradeTag.getCompound("CostA");
+                        CompoundTag localCostATag = tradeTag.contains("LocalCostA") ? tradeTag.getCompound("LocalCostA") : fallbackTag;
+                        ItemStack localCostA = ItemStack.OPTIONAL_CODEC.parse(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), localCostATag).result().orElse(costA);
+                        ItemStack costB = ItemStack.OPTIONAL_CODEC.parse(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), tradeTag.getCompound("CostB")).result().orElse(ItemStack.EMPTY);
+                        ItemStack result = ItemStack.OPTIONAL_CODEC.parse(regs.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), tradeTag.getCompound("Result")).result().orElse(ItemStack.EMPTY);
 
-                        String niceName = tradeTag.getString("NiceName").orElse("Unknown");
-                        String searchKey = tradeTag.getString("SearchKey").orElse("");
+                        String niceName = tradeTag.contains("NiceName") ? tradeTag.getString("NiceName") : "Unknown";
+                        String searchKey = tradeTag.contains("SearchKey") ? tradeTag.getString("SearchKey") : "";
 
                         trades.add(new VillagerRolodex.TradeInfo(costA, localCostA, costB, result, niceName, searchKey));
                     }

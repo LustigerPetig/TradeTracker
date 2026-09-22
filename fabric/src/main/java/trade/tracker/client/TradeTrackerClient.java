@@ -3,37 +3,34 @@ package trade.tracker.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.resources.Identifier;
-
+import org.lwjgl.glfw.GLFW;
 
 public class TradeTrackerClient implements ClientModInitializer {
 
-    public static final KeyMapping.Category TradeTracker_CATEGORY = KeyMapping.Category.register(
-            Identifier.fromNamespaceAndPath(TradeTracker.MOD_ID, "tradetracker.binds")
-    );
+    public static final String TRADETRACKER_CATEGORY = "key.category.tradetracker.tradetracker.binds";
     public static KeyMapping searchKeyBinding;
 
     @Override
     public void onInitializeClient() {
 
-        LevelRenderEvents.COLLECT_SUBMITS.register(context -> {
-            TradeTrackerEspRenderer.render(context.poseStack(), context.submitNodeCollector());
+        WorldRenderEvents.AFTER_ENTITIES.register(context -> {
+            TradeTrackerEspRenderer.render(context.matrixStack(), context.consumers());
         });
 
-        searchKeyBinding = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+        searchKeyBinding = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.tradetracker.search",
-                InputConstants.Type.KEYBOARD,
-                InputConstants.KEY_V,
-                TradeTracker_CATEGORY
+                InputConstants.Type.KEYSYM,
+                GLFW.GLFW_KEY_V,
+                TRADETRACKER_CATEGORY
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (searchKeyBinding.consumeClick()) {
-                client.gui.setScreen(new RolodexSearchScreen());
+                client.setScreen(new RolodexSearchScreen());
             }
         });
 

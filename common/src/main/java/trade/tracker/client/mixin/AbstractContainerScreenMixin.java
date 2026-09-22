@@ -2,7 +2,7 @@ package trade.tracker.client.mixin;
 
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.MerchantScreen;
-import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.inventory.MerchantMenu;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -35,9 +35,9 @@ public abstract class AbstractContainerScreenMixin {
             if (villager != null && menu != null && !menu.getOffers().isEmpty()) {
 
                 // Read metadata from Entity
-                String profession = villager.getVillagerData().profession().getRegisteredName();
+                String profession = villager.getVillagerData().getProfession().toString();
                 String nameTag = villager.getName().getString();
-                int level = villager.getVillagerData().level();
+                int level = villager.getVillagerData().getLevel();
                 int cordX = (int) villager.position().x();
                 int cordZ = (int) villager. position().z();
 
